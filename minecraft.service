@@ -1,0 +1,15 @@
+[Unit]
+Description=Minecraft Server Service
+After=network-online.target
+
+[Service]
+User=userxname
+WorkingDirectory=dirname/minecraft
+Type=forking
+ExecStart=/bin/bash dirname/minecraft/start.sh
+ExecStop=/bin/bash dirname/minecraft/stop.sh
+GuessMainPID=no
+TimeoutStartSec=600
+
+[Install]
+WantedBy=multi-user.target
