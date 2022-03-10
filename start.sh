@@ -4,8 +4,6 @@
 # GitHub Repository: https://github.com/TheRemote/RaspberryPiMinecraft
 # GitHub Repository: https://github.com/Cat5TV/pinecraft
 
-
-# NOTE: We use bash for better readability and error handling here
 # Minecraft Server startup script using screen -- view the console with screen -r minecraft
 
 # Settings
@@ -14,11 +12,11 @@
 server_jar="dirname/minecraft/paper.jar"
 # What will be passed to `-Xms` and `-Xmx`
 heap_size="memselectM"
-# JVM startup flags, one per line for better readability
-# NOTE: -Xms and -Xmx are set separately
+# JVM startup flags, one per line for better readability.
+# NOTE: -Xms and -Xmx are set separately but are set to the same value.
 # These are mostly "Aikar flags"
 # taken from: https://mcflags.emc.gs/
-jvm_flags=("
+jvm_flags=(
   -XX:+UseG1GC
   -XX:+ParallelRefProcEnabled
   -XX:MaxGCPauseMillis=200
@@ -39,31 +37,31 @@ jvm_flags=("
   -XX:MaxTenuringThreshold=1
   -Dusing.aikars.flags=https://mcflags.emc.gs
   -Daikars.new.flags=true
-")
+)
 # Minecraft args you might want to start your server with
 # Usually there isn't much to configure here:
-mc_args=("
-  --nogui # Start the server without GUI
-")
+mc_args=(
+  #--nogui # Since we are using screen we want the GUI or screen won't stay open
+)
 # END OF SETTINGS
 
 # The arguments that will be passed to java:
-java_args=("
+java_args=(
   -Xms"${heap_size}" # Set heap min size
   -Xmx"${heap_size}" # Set heap max size
   "${jvm_flags[@]}" # Use jvm flags specified above
   -jar "${server_jar}" # Run the server
-#  "${mc_args[@]}" # And pass it these settings
-")
+  "${mc_args[@]}" # And pass it these settings
+)
 
 # Set path variable
-USERPATH="pathvariable"
-PathLength=${#USERPATH}
-if [[ "$PathLength" -gt 12 ]]; then
-    PATH="$USERPATH"
-else
-    echo "Unable to set path variable."
-fi
+#USERPATH="pathvariable"
+#PathLength=${#USERPATH}
+#if [[ "$PathLength" -gt 12 ]]; then
+#    PATH="$USERPATH"
+#else
+#    echo "Unable to set path variable."
+#fi
 
 # Check to make sure we aren't running as root
 if [[ $(id -u) = 0 ]]; then
@@ -109,9 +107,27 @@ bash /dirname/minecraft/backup.sh
 Rotate=$(pushd dirname/minecraft/backups; ls -1tr | head -n -10 | xargs -d '\n' rm -f --; popd)
 
 # Switch to server directory
-cd dirname/minecraft/
+#cd dirname/minecraft/
 
-echo "Starting Minecraft server.  To view window type screen -r minecraft."
-echo "To minimize the window and let the server run in the background, press Ctrl+A then Ctrl+D"
+echo "Starting your Minecraft server."
 #screen -dmS minecraft java -jar -Xms400M -XmxmemselectM dirname/minecraft/paper.jar
-screen -dmS minecraft java "${java_args[@]}"
+screen -dmS minecraft java -jar "${java_args[@]}"
+
+StartChecks=0
+while [ $StartChecks -lt 30 ]; do
+  if screen -list | grep -q "\.minecraft"; then
+    screen -r minecraft
+    break
+  fi
+  sleep 1s
+  StartChecks=$((StartChecks + 1))
+done
+
+if [[ $StartChecks == 30 ]]; then
+  echo "Server has failed to start after 30 seconds."
+else
+  echo "Your Minecraft server is now starting"
+  echo "The process can take several minutes. Please be patient."
+  echo "To view the window that your server is running in type...screen -r minecraft"
+  echo "To minimize the window and let the server run in the background, press Ctrl+A then Ctrl+D"
+fi

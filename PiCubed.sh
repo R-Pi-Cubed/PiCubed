@@ -129,7 +129,6 @@ Update_Scripts() {
   chmod +x start.sh
   sed -i "s:dirname:$DirName:g" start.sh
   sed -i "s:memselect:$MemSelected:g" start.sh
-  sed -i "s:verselect:$Version:g" start.sh
   sed -i "s<pathvariable<$PATH<g" start.sh
 
   sleep 1
