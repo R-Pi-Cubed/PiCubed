@@ -1,20 +1,23 @@
 #!/bin/sh
+# We need to use sh, since it's hardcoded in spigot
+# Minecraft server shutdown and Pi reboot.
+
 # This script is a combination of several sources and are credited here in no order of priority.
 # GitHub Repository: https://gist.github.com/Prof-Bloodstone/6367eb4016eaf9d1646a88772cdbbac5
 # GitHub Repository: https://github.com/TheRemote/RaspberryPiMinecraft
 # GitHub Repository: https://github.com/Cat5TV/pinecraft
 
-# We need to use sh, since it's hardcoded in spigot
-# Minecraft Server restart script - primarily called by minecraft service but can be ran manually with ./restart.sh
+# Minecraft Server restart script - Primarily called by the daily CRON job, Minecraft service or the server if designated in spigot.yml
+# Can also be ran manually with ./restart.sh
 
 # Set path variable
-USERPATH="pathvariable"
-PathLength=${#USERPATH}
-if [[ "$PathLength" -gt 12 ]]; then
-  PATH="$USERPATH"
-else
-  echo "Unable to set path variable."
-fi
+#USERPATH="pathvariable"
+#PathLength=${#USERPATH}
+#if [[ "$PathLength" -gt 12 ]]; then
+#  PATH="$USERPATH"
+#else
+#  echo "Unable to set path variable."
+#fi
 
 # Check to make sure we aren't running as root
 if [[ $(id -u) = 0 ]]; then
@@ -30,8 +33,7 @@ fi
 
 echo "Now sending restart notifications to server..."
 sleep 1
-
-# Minecraft Server restart and pi reboot.
+# Sending warning messages to the console.
 screen -Rd minecraft -X stuff "say !!!ATTENTION!!! The server is restarting in 30 seconds! $(printf '\r')"
 echo "The server is restarting in 30 seconds!"
 sleep 23s
@@ -59,8 +61,9 @@ sleep 1s
 screen -Rd minecraft -X stuff "say Closing the server...$(printf '\r')"
 screen -Rd minecraft -X stuff "stop $(printf '\r')"
 
-# Wait up to 30 seconds for server to close
+# Wait up to 60 seconds for server to close
 echo "Closing the server..."
+echo "This could take up to 60 seconds."
 StopChecks=0
 while [ $StopChecks -lt 60 ]; do
   if ! screen -list | grep -q "\.minecraft"; then

@@ -25,8 +25,7 @@ tar --exclude='./backups' --exclude='./cache' --exclude='./logs' --exclude='./pa
 # Rotate backups -- keep most recent 10
 echo "Cleaning up minecraft/backups folder."
 echo "Only the latest 10 backups are preserved."
-Rotate=$(pushd dirname/minecraft/backups; ls -1tr | head -n -10 | xargs -d '\n' rm -f --; popd)
-
 sleep 1
+Rotate=$(pushd dirname/minecraft/backups; ls -1tr | head -n -10 | xargs -d '\n' rm -f --; popd)
 echo "Complete"
 sleep 1

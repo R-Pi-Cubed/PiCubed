@@ -1,20 +1,21 @@
 #!/bin/bash
+# Minecraft Server stop script - primarily called by the Minecraft service
+# but can be ran manually with ./stop.sh
+
 # This script is a combination of several sources and are credited here in no order of priority.
 # GitHub Repository: https://gist.github.com/Prof-Bloodstone/6367eb4016eaf9d1646a88772cdbbac5
 # GitHub Repository: https://github.com/TheRemote/RaspberryPiMinecraft
 # GitHub Repository: https://github.com/Cat5TV/pinecraft
 
-# NOTE: We use bash for better readability and error handling here
-# Minecraft Server stop script - primarily called by ran manually with ./stop.sh
 
 # Set path variable
-USERPATH="pathvariable"
-PathLength=${#USERPATH}
-if [[ "$PathLength" -gt 12 ]]; then
-  PATH="$USERPATH"
-else
-  echo "Unable to set path variable."
-fi
+#USERPATH="pathvariable"
+#PathLength=${#USERPATH}
+#if [[ "$PathLength" -gt 12 ]]; then
+#  PATH="$USERPATH"
+#else
+#  echo "Unable to set path variable."
+#fi
 
 # Check to make sure we aren't running as root
 if [[ $(id -u) = 0 ]]; then
@@ -28,10 +29,9 @@ if ! screen -list | grep -q "\.minecraft"; then
   exit 1
 fi
 
-# Stop the server
 echo "Sending server stop notification to players...."
 
-# Minecraft Server restart and pi reboot.
+# Sending warning messages to the console.
 screen -Rd minecraft -X stuff "say Stop sequence activated. Server will stop in 30 seconds! $(printf '\r')"
 echo "Stop sequence activated. Server will stop in 30 seconds!"
 sleep 23s
@@ -59,8 +59,9 @@ sleep 1s
 screen -Rd minecraft -X stuff "say Closing server...$(printf '\r')"
 screen -Rd minecraft -X stuff "stop$(printf '\r')"
 
-# Wait up to 30 seconds for server to close
+# Wait up to 60 seconds for server to close
 echo "Closing server..."
+echo "This could take up to 60 seconds."
 StopChecks=0
 while [ $StopChecks -lt 60 ]; do
   if ! screen -list | grep -q "\.minecraft"; then

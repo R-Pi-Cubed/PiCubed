@@ -9,13 +9,13 @@
 # If you are using the systemd service (sudo systemctl start minecraft) it performs this automatically for you each startup
 
 # Set path variable
-USERPATH="pathvariable"
-PathLength=${#USERPATH}
-if [[ "$PathLength" -gt 12 ]]; then
-    PATH="$USERPATH"
-else
-    echo "Unable to set path variable.  You likely need to download an updated version of SetupMinecraft.sh from GitHub!"
-fi
+#USERPATH="pathvariable"
+#PathLength=${#USERPATH}
+#if [[ "$PathLength" -gt 12 ]]; then
+#    PATH="$USERPATH"
+#else
+#    echo "Unable to set path variable.  You likely need to download an updated version of SetupMinecraft.sh from GitHub!"
+#fi
 
 # Get an optional custom countdown time (in minutes)
 #Automated=0
@@ -37,7 +37,7 @@ fi
 #  esac
 #done
 
-echo "Taking ownership of all server files/folders in dirname/minecraft..."
+echo "Now taking ownership of all server files/folders in dirname/minecraft..."
 #if [[ $Automated == 1 ]]; then
 #    sudo -n chown -R userxname dirname/minecraft
 #    sudo -n chmod -R 755 dirname/minecraft/*.sh
@@ -50,6 +50,6 @@ sudo chmod -Rv 755 dirname/minecraft/*.sh
    # tail -10 "$NewestLog"
 #fi
 
-sleep 3
+sleep 2
 
 echo "Complete"

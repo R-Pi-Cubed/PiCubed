@@ -4,7 +4,6 @@
 # GitHub Repository: https://github.com/TheRemote/RaspberryPiMinecraft
 # GitHub Repository: https://github.com/Cat5TV/pinecraft
 
-# NOTE: We use bash for better readability and error handling here
 
 # PiCubed server version
 Version="0.1"
@@ -172,7 +171,7 @@ Update_Service() {
   sudo sed -i "s:userxname:$UserName:g" /etc/systemd/system/minecraft.service
   sudo sed -i "s:dirname:$DirName:g" /etc/systemd/system/minecraft.service
   sudo systemctl daemon-reload
-  Print_Style "Minecraft can automatically start at boot if you wish." "$CYAN"
+  Print_Style "Your Parper Minecraft server can start automatically at boot if enabled." "$CYAN"
   echo -n "Start Minecraft server at startup automatically (y/n)?"
   read answer < /dev/tty
   if [ "$answer" != "${answer#[Yy]}" ]; then
