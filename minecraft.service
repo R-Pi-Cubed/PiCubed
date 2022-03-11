@@ -1,5 +1,6 @@
 [Unit]
 Description=Minecraft Server Service
+Documentation=https://github.com/R-Pi-Cubed/PiCubed-Minecraft-Installer
 After=network-online.target
 
 [Service]
