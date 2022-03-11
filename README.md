@@ -10,9 +10,7 @@ PiCubed will assist you in the installation of a Paper Minecraft Java Server. **
 
 PiCubed makes the assumption that you are tinkering with a Raspberry Pi because you are the type of person that, well likes to tinker and know a little more about what's going on under the hood. If you are ready to learn a little more and put in a little more effort then this script if for you. If not, thank you for looking. We'll still be here if you want to learn a little more later. In all reality though running a Minecraft server, even a small one for you and a couple of friends, will require you to learn a few things about the process.
 
-## Log4j vulnerability
-
-You may have heard in the news about a vulnerability in a piece of software called Log4j. There are countless pages of information on it found with a quick internet search so I will only briefly address it here. This vulnerability was actually first discovered by the Minecraft community and the entire community has been quick to resolve the vulnerability. **The latest version of the Minecraft client from Mojang and the latest version of the Paper server have been patched to these vulnerabilities.** Indeed even older versions have been patched but it is best to verify on an idividual basis the status of the patch if you are not using the latest software.
+Please refer to the [wiki](https://github.com/R-Pi-Cubed/PiCubed-Minecraft-Installer/wiki) for detailed information and instructions on how to get your server up and running.
 
 ## Before you get started
 
@@ -39,3 +37,7 @@ Speaking of overclocking. To get the best performance out of your Pi it will nee
 You will need a storage device for your Pi. The Pi comes with an integrated micro SD card slot so at a bare minimum you'll need a fast micro SD card. A micro SD card likely came with your Pi. That card is also likely not very good. Quality micro SD cards are expensive but are still limited in their access speed and durability. For the cost to performance ratio I always suggest purchasing an external SSD for your Pi. It is not complicated to set up. You'll be glad you did later.
 
 Lastly and often overlooked is the power supply. You are going to need a good power supply. Your old IPhone charger is **NOT** a good power supply. In fact the offical Raspberry Pi power supply that delivers 3A is the minimum you should be looking for. It is hard to overstate how important your power supply will be to the final performance of your server. I run my servers on 4A power supplies.
+
+## Log4j vulnerability
+
+You may have heard in the news about a vulnerability in a piece of software called Log4j. There are countless pages of information on it found with a quick internet search so I will only briefly address it here. This vulnerability was actually first discovered by the Minecraft community and the entire community has been quick to resolve the vulnerability. **The latest version of the Minecraft client from Mojang and the latest version of the Paper server have been patched to these vulnerabilities.** Indeed even older versions have been patched but it is best to verify on an idividual basis the status of the patch if you are not using the latest software.
