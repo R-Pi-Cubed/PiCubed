@@ -13,6 +13,10 @@
 # PiCubed server version
 Version="0.1"
 
+# The minimum Java version required for the version on Minecraft you want to install
+minjavaver=17
+
+
 UserName=$(whoami)
 
 # Terminal colors using ANSI escape
@@ -32,7 +36,12 @@ txBLINK=$(tput blink)
 txREVERSE=$(tput smso)
 txUNDERLINE=$(tput smul)
 
-# Function to read input from user with a prompt
+# Prints a line with color using terminal codes
+Print_Style() {
+  printf "%s\n" "${2}$1${NORMAL}"
+}
+
+# Function to read input from user with a prompt - Only used once in fetching the directory.
 function read_with_prompt {
   variable_name="$1"
   prompt="$2"
@@ -55,11 +64,6 @@ function read_with_prompt {
       echo "$prompt: ${!variable_name}"
     fi
   done
-}
-
-# Prints a line with color using terminal codes
-Print_Style() {
-  printf "%s\n" "${2}$1${NORMAL}"
 }
 
 # Configure how much memory to use for the Minecraft server
@@ -341,7 +345,7 @@ fi
 # Get total system memory
 Get_ServerMemory
 
-# Run the Minecraft server for the first time which will build the modified server and exit saying the EULA needs to be accepted
+# Run the Minecraft server for the first time which will build the server and exit saying the EULA needs to be accepted.
 Print_Style "Now running the server jar for the first time." "$fgYELLOW"
 sleep 1
 Print_Style "This will initialize the server but it will not start. Please wait." "$fgYELLOW"
