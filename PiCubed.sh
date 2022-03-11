@@ -1,4 +1,9 @@
 #!/bin/bash
+
+# This script is an installation aid to help install a Minecraft server on a Raspberry Pi.
+# Note - This script will NOT fetch any version of minecraft. The user is responsible for transfering a copy of the latest
+# minecraft server *.jar file to the Pi in the proper directory. 
+ 
 # This script is a combination of several sources and are credited here in no order of priority.
 # GitHub Repository: https://gist.github.com/Prof-Bloodstone/6367eb4016eaf9d1646a88772cdbbac5
 # GitHub Repository: https://github.com/TheRemote/RaspberryPiMinecraft
