@@ -3,7 +3,7 @@
 # This script is an installation aid to help install a Minecraft server on a Raspberry Pi.
 # Note - This script will NOT fetch any version of minecraft. The user is responsible for transfering a copy of the latest
 # minecraft server *.jar file to the Pi in the proper directory. 
- 
+
 # This script is a combination of several sources and are credited here in no order of priority.
 # GitHub Repository: https://gist.github.com/Prof-Bloodstone/6367eb4016eaf9d1646a88772cdbbac5
 # GitHub Repository: https://github.com/TheRemote/RaspberryPiMinecraft
@@ -15,21 +15,22 @@ Version="0.1"
 
 UserName=$(whoami)
 
-# Terminal colors
-BLACK=$(tput setaf 0)
-RED=$(tput setaf 1)
-GREEN=$(tput setaf 2)
-YELLOW=$(tput setaf 3)
-LIME_YELLOW=$(tput setaf 190)
-BLUE=$(tput setaf 4)
-MAGENTA=$(tput setaf 5)
-CYAN=$(tput setaf 6)
-WHITE=$(tput setaf 7)
-BRIGHT=$(tput bold)
-NORMAL=$(tput sgr0)
-BLINK=$(tput blink)
-REVERSE=$(tput smso)
-UNDERLINE=$(tput smul)
+# Terminal colors using ANSI escape
+# Foreground
+fgBLACK=$(tput setaf 000)
+fgRED=$(tput setaf 009)
+fgGREEN=$(tput setaf 010)
+fgYELLOW=$(tput setaf 011)
+fgBLUE=$(tput setaf 012)
+fgMAGENTA=$(tput setaf 013)
+fgCYAN=$(tput setaf 014)
+fgWHITE=$(tput setaf 015)
+#Text formatting options
+txBRIGHT=$(tput bold)
+txNORMAL=$(tput sgr0)
+txBLINK=$(tput blink)
+txREVERSE=$(tput smso)
+txUNDERLINE=$(tput smul)
 
 # Function to read input from user with a prompt
 function read_with_prompt {
@@ -72,22 +73,22 @@ Get_ServerMemory() {
 
   sleep 1s
 
-  Print_Style "Total memory: $TotalMemory - Available Memory: $AvailableMemory" "$YELLOW"
+  Print_Style "Total memory: $TotalMemory - Available Memory: $AvailableMemory" "$fgYELLOW"
   if [[ "$CPUArch" == *"armv7"* || "$CPUArch" == *"armhf"* ]]; then
-    Print_Style "Warning: You are running a 32 bit operating system which has a hard limit of 3 GB of memory per process" "$RED"
-    Print_Style "Warning: This installer is intended for a 64 bit headless operating system, continue at your own discression." "$RED"
+    Print_Style "Warning: You are running a 32 bit operating system which has a hard limit of 3 GB of memory per process" "$fgRED"
+    Print_Style "Warning: This installer is intended for a 64 bit headless operating system, continue at your own discression." "$fgRED"
     if [ "$AvailableMemory" -gt 2700 ]; then
       echo
-      Print_Style "Warning: There is a limited amount of RAM available. The Operating system requires some ram to function properly." "$RED"
-      Print_Style "You must also leave behind some room for the Java VM process overhead.  It is not recommended to exceed 2700 and if you experience crashes you may need to reduce it further." "$YELLOW"
-      Print_Style "You can remove this limit by using a headless 64 bit operating system like Ubuntu." "$YELLOW"
+      Print_Style "Warning: There is a limited amount of RAM available. The Operating system requires some ram to function properly." "$fgRED"
+      Print_Style "You must also leave behind some room for the Java VM process overhead.  It is not recommended to exceed 2700 and if you experience crashes you may need to reduce it further." "$fgYELLOW"
+      Print_Style "You can remove this limit by using a headless 64 bit operating system like Ubuntu." "$fgYELLOW"
       AvailableMemory=2700
     fi
   fi
   if [ $AvailableMemory -lt 1024 ]; then
-    Print_Style "WARNING:  Available memory to run the server is less than 1000MB. This will impact performance and stability." "$RED"
-    Print_Style "You may be able to increase available memory by closing other processes. If nothing else is running your distro may be using all available memory." "$YELLOW"
-    Print_Style "It is recommended to use a headless distro (Lite or Server version) to ensure you have the maximum memory available possible." "$YELLOW"
+    Print_Style "WARNING:  Available memory to run the server is less than 1000MB. This will impact performance and stability." "$fgRED"
+    Print_Style "You may be able to increase available memory by closing other processes. If nothing else is running your distro may be using all available memory." "$fgYELLOW"
+    Print_Style "It is recommended to use a headless distro (Lite or Server version) to ensure you have the maximum memory available possible." "$fgYELLOW"
     echo -n "Press any key to continue"
     read endkey < /dev/tty
     exit 1
@@ -95,32 +96,32 @@ Get_ServerMemory() {
 
   # Suggest an amount of memory to use and confirm with the user.
   if [[ "$CPUArch" == *"aarch64"* || "$CPUArch" == *"arm64"* ]]; then
-    Print_Style "INFO: You are running a 64-bit architecture." "$MAGENTA"
+    Print_Style "INFO: You are running a 64-bit architecture." "$fgMAGENTA"
     if [ "$AvailableMemory" -gt 2700 ]; then
-      Print_Style "INFO: You can use more than 2700MB of RAM for the Minecraft server." "$MAGENTA"
+      Print_Style "INFO: You can use more than 2700MB of RAM for the Minecraft server." "$fgMAGENTA"
     fi
   fi
   echo
-  Print_Style "Please enter the amount of memory you want to dedicate to the server.  A minimum of 1024MB is recommended." "$CYAN"
-  Print_Style "You must leave enough left over memory for the operating system to run background processes." "$CYAN"
-  Print_Style "If the operating system is not left with enough ram it will crash." "$CYAN"
+  Print_Style "Please enter the amount of memory you want to dedicate to the server.  A minimum of 1024MB is recommended." "$fgCYAN"
+  Print_Style "You must leave enough left over memory for the operating system to run background processes." "$fgCYAN"
+  Print_Style "If the operating system is not left with enough ram it will crash." "$fgCYAN"
   MemSelected=0
   RecommendedMemory=$(($AvailableMemory - 2000))
   while [[ $MemSelected -lt 1000 || $MemSelected -ge $TotalMemory ]]; do
     echo -n "Enter amount of memory in megabytes to dedicate to the Minecraft server (recommended: $RecommendedMemory): " 
     read MemSelected < /dev/tty
     if [[ $MemSelected -lt 1000 ]]; then
-      Print_Style "Please enter a minimum of 1000" "$RED"
+      Print_Style "Please enter a minimum of 1000" "$fgRED"
     elif [[ $MemSelected -gt $TotalMemory ]]; then
-      Print_Style "Please enter an amount less than the total memory in the system ($TotalMemory)" "$RED"
+      Print_Style "Please enter an amount less than the total memory in the system ($TotalMemory)" "$fgRED"
     elif [[ $MemSelected -gt 2700 && "$CPUArch" == *"armv7"* || "$CPUArch" == *"armhf"* ]]; then
-      Print_Style "You are running a 32 bit operating system which has a limit of 2700MB.  Please enter 2700 to use it all." "$RED"
-      Print_Style "If you experience crashes at 2700MB you may need to run SetupMinecraft again and lower it further." "$RED"
-      Print_Style "You can lift this restriction by upgrading to a 64 bit operating system." "$RED"
+      Print_Style "You are running a 32 bit operating system which has a limit of 2700MB.  Please enter 2700 to use it all." "$fgRED"
+      Print_Style "If you experience crashes at 2700MB you may need to run SetupMinecraft again and lower it further." "$fgRED"
+      Print_Style "You can lift this restriction by upgrading to a 64 bit operating system." "$fgRED"
       MemSelected=0
     fi
   done
-  Print_Style "Amount of memory for Minecraft server selected: $MemSelected MB" "$GREEN"
+  Print_Style "Amount of memory for Minecraft server selected: $MemSelected MB" "$fgGREEN"
   sleep 2
 }
 
@@ -129,7 +130,7 @@ Update_Scripts() {
   cd $DirName/minecraft
 
   # Upsate start.sh
-  Print_Style "Updating start.sh ..." "$YELLOW"
+  Print_Style "Updating start.sh ..." "$fgYELLOW"
   chmod +x start.sh
   sed -i "s:dirname:$DirName:g" start.sh
   sed -i "s:memselect:$MemSelected:g" start.sh
@@ -176,7 +177,7 @@ Update_Service() {
   sudo sed -i "s:userxname:$UserName:g" /etc/systemd/system/minecraft.service
   sudo sed -i "s:dirname:$DirName:g" /etc/systemd/system/minecraft.service
   sudo systemctl daemon-reload
-  Print_Style "Your Parper Minecraft server can start automatically at boot if enabled." "$CYAN"
+  Print_Style "Your Parper Minecraft server can start automatically at boot if enabled." "$fgCYAN"
   echo -n "Start Minecraft server at startup automatically (y/n)?"
   read answer < /dev/tty
   if [ "$answer" != "${answer#[Yy]}" ]; then
@@ -189,8 +190,8 @@ Configure_Reboot() {
   # Automatic reboot at 4am configuration
   TimeZone=$(cat /etc/timezone)
   CurrentTime=$(date)
-  Print_Style "Your time zone is currently set to $TimeZone.  Current system time: $CurrentTime" "$CYAN"
-  Print_Style "You can adjust/remove the selected reboot time later by typing crontab -e" "$CYAN"
+  Print_Style "Your time zone is currently set to $TimeZone.  Current system time: $CurrentTime" "$fgCYAN"
+  Print_Style "You can adjust/remove the selected reboot time later by typing crontab -e" "$fgCYAN"
   echo -n "Automatically reboot Pi and update server at 4am daily (y/n)?"
   read answer < /dev/tty
   if [ "$answer" != "${answer#[Yy]}" ]; then
@@ -200,7 +201,7 @@ Configure_Reboot() {
       crontab -l | grep -v -F "$croncmd"
       echo "$cronjob"
     ) | crontab -
-    Print_Style "Daily reboot scheduled.  To change time or remove automatic reboot type crontab -e" "$GREEN"
+    Print_Style "Daily reboot scheduled.  To change time or remove automatic reboot type crontab -e" "$fgGREEN"
     sleep 1
   fi
 }
@@ -225,7 +226,7 @@ Set_Permissions() {
 }
 
 Check_Java() {
-Print_Style "Updating repositories..." "$CYAN"
+Print_Style "Updating repositories..." "$fgCYAN"
 apt-get update > /dev/null 2>&1
 
 # Java installed?
@@ -234,7 +235,7 @@ if type -p java > /dev/null; then
 elif [[ -n "$JAVA_HOME" ]] && [[ -x "$JAVA_HOME/bin/java" ]];  then
     _java="$JAVA_HOME/bin/java"
 else
-  Print_Style "No version of Java detected. Please install the latest JRE first and try again." "$RED"
+  Print_Style "No version of Java detected. Please install the latest JRE first and try again." "$fgRED"
   echo
   echo "Install aborted."
   echo
@@ -260,7 +261,7 @@ done
 
 # minimum version of Java supported by Minecraft Server
 if [[ $ver > 8 ]] || [[ $ver == 1 ]] && [[ $subver > 8 ]]; then
-  Print_Style "The installed Java is version ${javaver}. You'll need a newer version of JRE." "$red"
+  Print_Style "The installed Java is version ${javaver}. You'll need a newer version of JRE." "$fgRED"
   echo
   echo "Failed."
   echo
@@ -271,18 +272,18 @@ fi
 #################################################################################################
 
 Print_Style "PiCubed Minecraft server installation script" "$CYAN"
-Print_Style "The latest version is always available at https://https://github.com/R-Pi-Cubed/PiCubed-Minecraft-Installer" "$CYAN"
+Print_Style "The latest version is always available at https://https://github.com/R-Pi-Cubed/PiCubed-Minecraft-Installer" "$fgCYAN"
 
 # Check to make sure we aren't running as root
 if [[ $(id -u) = 0 ]]; then
-   Print_Style "This script is not meant to run as root or sudo.  Please run as a normal user with ./PiCubed.sh  Exiting..." "$RED"
+   Print_Style "This script is not meant to run as root or sudo.  Please run as a normal user with ./PiCubed.sh  Exiting..." "$fgRED"
    exit 1
 fi
 
 sleep 2s
 
 # Install dependencies needed to run minecraft in the background
-Print_Style "Installing the latest version of screen.... Not your screen, the program known as screen." "$YELLOW"
+Print_Style "Installing the latest version of screen.... Not your screen, the program known as screen." "$fgYELLOW"
 sleep 2s
 sudo apt-get update
 sudo apt-get install screen -y
@@ -291,35 +292,35 @@ sudo apt-get install screen -y
 # Get directory path (default ~)
 until [ -d "$DirName" ]
 do
-  Print_Style "Please enter the root directory path to install the Minecraft server." "$CYAN"
-  Print_Style "If you are not sure what this is just enter the default. (default = ~)" "$CYAN"
-  Print_Style "If you're installing to a different disk altogether the default won't work. " "$CYAN"
+  Print_Style "Please enter the root directory path to install the Minecraft server." "$fgCYAN"
+  Print_Style "If you are not sure what this is just enter the default. (default = ~)" "$fgCYAN"
+  Print_Style "If you're installing to a different disk altogether the default won't work. " "$fgCYAN"
   read_with_prompt DirName "Directory Path" ~
   DirName=$(eval echo "$DirName")
   if [ ! -d "$DirName" ]; then
-    Print_Style "Invalid directory. Please use the default path (default = ~) if you aren't familiar with fully qualified Linux paths or you're going to have errors." "$RED"
+    Print_Style "Invalid directory. Please use the default path (default = ~) if you aren't familiar with fully qualified Linux paths or you're going to have errors." "$fgRED"
   fi
 done
 
 # Check to see if the Minecraft directory already exists.
 if [ -d "$DirName/minecraft" ]; then
-  Print_Style "Found Minecraft directory." "$GREEN"
+  Print_Style "Found Minecraft directory." "$fgGREEN"
   sleep 1s
 else
-  Print_Style "Minecraft directory not found. Exiting." "$RED"
+  Print_Style "Minecraft directory not found. Exiting." "$fgRED"
   exit 1
 fi
 
-Print_Style "Moving into the Minecraft directory." "$CYAN"
+Print_Style "Moving into the Minecraft directory." "$fgCYAN"
 cd "$DirName/minecraft"
 
 # Create backup directory
 # Check to see if the backup directory already exists.
 if [ -d "$DirName/minecraft/backups" ]; then
-  Print_Style "A backups directory already exists." "$GREEN"
+  Print_Style "A backups directory already exists." "$fgGREEN"
   sleep 2s
 else
-  Print_Style "Creating the backups directory." "$YELLOW"
+  Print_Style "Creating the backups directory." "$fgYELLOW"
   mkdir backups
   sleep 2s
 fi
@@ -328,18 +329,18 @@ fi
 Get_ServerMemory
 
 # Run the Minecraft server for the first time which will build the modified server and exit saying the EULA needs to be accepted
-Print_Style "Now running the jar for the first time." "$YELLOW"
+Print_Style "Now running the jar for the first time." "$fgYELLOW"
 sleep 1
-Print_Style "This will initialize the server but it will not start. Please wait." "$YELLOW"
+Print_Style "This will initialize the server but it will not start. Please wait." "$fgYELLOW"
 java -jar -Xms400M -Xmx"$MemSelected"M server.jar --nogui
 
 # Accept the EULA
-Print_Style "End-User License Agreement" "$MAGENTA"
-Print_Style "In order to proceed, you must read and accept the EULA at https://account.mojang.com/documents/minecraft_eula" "$CYAN"
+Print_Style "End-User License Agreement" "$fgMAGENTA"
+Print_Style "In order to proceed, you must read and accept the EULA at https://account.mojang.com/documents/minecraft_eula" "$fgCYAN"
 echo -n "Do you accept the EULA? (y/n)?"
 read answer < /dev/tty
 if [ "$answer" != "${answer#[Yy]}" ]; then
-  Print_Style "Accepting the EULA..." "$GREEN"
+  Print_Style "Accepting the EULA..." "$fgGREEN"
   echo eula=true >eula.txt
   sleep 1
 fi
@@ -360,13 +361,13 @@ Update_Sudoers
 Set_Permissions
 
 # Server configuration
-Print_Style "Enter a name for your server..." "$MAGENTA"
+Print_Style "Enter a name for your server..." "$fgMAGENTA"
 read -p 'Server Name: ' servername < /dev/tty
 echo "server-name=$servername" >>server.properties
 echo "motd=$servername" >>server.properties
 
 # Finished!
-Print_Style "Setup is complete. Starting Minecraft server..." "$GREEN"
+Print_Style "Setup is complete. Starting Minecraft server..." "$fgGREEN"
 sudo systemctl start minecraft.service
 
 # Wait up to 30 seconds for server to start
@@ -381,13 +382,12 @@ while [ $StartChecks -lt 30 ]; do
 done
 
 if [[ $StartChecks == 30 ]]; then
-  Print_Style "Server has failed to start after 30 seconds." "$RED"
+  Print_Style "Server has failed to start after 30 seconds." "$fgRED"
 else
   #screen -r minecraft
-  Print_Style "Installation complete." "$CYAN"
-  Print_Style "Please Remember: World generation can take a few minutes. Be patient." "$YELLOW"
-  Print_Style "Your Minecraft server $servername is now starting on $ip" "$CYAN"
-  Print_Style "For the full documentation: https://github.com/R-Pi-Cubed/PiCubed-Minecraft-Installer"
-  #Print_Style "Don't forget to set up port forwarding on your router!  The default port is 25565" "$MAGENTA"
-  #Print_Style "Support The Project: https://patreon.com/Pinecraft"
+  Print_Style "Installation complete." "$fgCYAN"
+  Print_Style "Please Remember: World generation can take a few minutes. Be patient." "$fgYELLOW"
+  Print_Style "Your Minecraft server $servername is now starting on $ip" "$fgCYAN"
+  Print_Style "For the full documentation: https://github.com/R-Pi-Cubed/PiCubed-Minecraft-Installer" "$fgCYAN"
+  #Print_Style "Support The Project: https://patreon.com" "$fgCYAN"
 fi
