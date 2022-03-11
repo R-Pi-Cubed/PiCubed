@@ -139,7 +139,7 @@ Update_Scripts() {
   sleep 1
 
   # Update stop.sh
-  echo "Updating stop.sh ..."
+  Print_Style "Updating stop.sh ..." "$fgYELLOW"
   chmod +x stop.sh
   sed -i "s:dirname:$DirName:g" stop.sh
   sed -i "s<pathvariable<$PATH<g" stop.sh
@@ -147,15 +147,15 @@ Update_Scripts() {
   sleep 1
 
   # Update restart.sh
-  echo "Updating restart.sh ..."
+  Print_Style "Updating restart.sh ..." "$fgYELLOW"
   chmod +x restart.sh
   sed -i "s:dirname:$DirName:g" restart.sh
   sed -i "s<pathvariable<$PATH<g" restart.sh
 
   sleep 1
 
-  # Update permissions.sh
-  echo "Updating setperm.sh ..."
+  # Update setperm.sh
+  Print_Style "Updating setperm.sh ..." "$fgYELLOW"
   chmod +x setperm.sh
   sed -i "s:dirname:$DirName:g" setperm.sh
   sed -i "s:userxname:$UserName:g" setperm.sh
@@ -164,14 +164,22 @@ Update_Scripts() {
   sleep 1
 
   # Update backup.sh
-  echo "Updating backup.sh ..."
+  Print_Style "Updating backup.sh ..." "$fgYELLOW"
   chmod +x backup.sh
+  sed -i "s:dirname:$DirName:g" backup.sh
+  sed -i "s<pathvariable<$PATH<g" backup.sh
+
+  sleep 1
+
+  # Update backup.sh
+  Print_Style "Updating backupnas.sh ..." "$fgYELLOW"
+  chmod +x backupnas.sh
   sed -i "s:dirname:$DirName:g" backup.sh
   sed -i "s<pathvariable<$PATH<g" backup.sh
 
 }
 
-# Updates Minecraft service
+# Update systemd files to create a Minecraft service.
 Update_Service() {
   sudo cp minecraft.service /etc/systemd/system/
   sudo sed -i "s:userxname:$UserName:g" /etc/systemd/system/minecraft.service
@@ -185,14 +193,19 @@ Update_Service() {
   fi
 }
 
-# Configuration of server automatic reboots
+# Configure a CRON job to reboot the system daily
+# Minecraft servers benefit from a daily reboot in off hours
+# It's also a good time to do the daily backup
 Configure_Reboot() {
   # Automatic reboot at 4am configuration
   TimeZone=$(cat /etc/timezone)
   CurrentTime=$(date)
   Print_Style "Your time zone is currently set to $TimeZone.  Current system time: $CurrentTime" "$fgCYAN"
-  Print_Style "You can adjust/remove the selected reboot time later by typing crontab -e" "$fgCYAN"
-  echo -n "Automatically reboot Pi and update server at 4am daily (y/n)?"
+  Print_Style "It is highly recommended to reboot your Minecraft server regularly." "$fgCYAN"
+  Print_Style "During a reboot is also a good time to do a server backup." "$fgCYAN"
+  Print_Style "Server backups will automatically be cycled and only the most recent 10 backups will be kept." "$fgCYAN"
+  Print_Style "You can adjust/remove the selected reboot & backup time later by typing crontab -e" "$fgCYAN"
+  echo -n "Automatically reboot the Pi and backup the server daily at 4am (y/n)?"
   read answer < /dev/tty
   if [ "$answer" != "${answer#[Yy]}" ]; then
     croncmd="$DirName/minecraft/restart.sh"
@@ -226,7 +239,7 @@ Set_Permissions() {
 }
 
 Check_Java() {
-Print_Style "Updating repositories..." "$fgCYAN"
+Print_Style "Checking Java..." "$fgCYAN"
 apt-get update > /dev/null 2>&1
 
 # Java installed?
@@ -289,7 +302,7 @@ sudo apt-get update
 sudo apt-get install screen -y
 #sudo apt-get install net-tools -y
 
-# Get directory path (default ~)
+# Get the directory path (default ~)
 until [ -d "$DirName" ]
 do
   Print_Style "Please enter the root directory path to install the Minecraft server." "$fgCYAN"
@@ -329,10 +342,10 @@ fi
 Get_ServerMemory
 
 # Run the Minecraft server for the first time which will build the modified server and exit saying the EULA needs to be accepted
-Print_Style "Now running the jar for the first time." "$fgYELLOW"
+Print_Style "Now running the server jar for the first time." "$fgYELLOW"
 sleep 1
 Print_Style "This will initialize the server but it will not start. Please wait." "$fgYELLOW"
-java -jar -Xms400M -Xmx"$MemSelected"M server.jar --nogui
+java -jar -Xms1000M -Xmx1000M paper.jar --nogui
 
 # Accept the EULA
 Print_Style "End-User License Agreement" "$fgMAGENTA"
@@ -343,6 +356,23 @@ if [ "$answer" != "${answer#[Yy]}" ]; then
   Print_Style "Accepting the EULA..." "$fgGREEN"
   echo eula=true >eula.txt
   sleep 1
+else
+  Print_Style "We cannot continue until you accept the EULA." "$fgYELLOW"
+  Print_Style "Answering no again will exit the setup." "$fgYELLOW"
+  echo -n "Do you accept the EULA? (y/n)?"
+  read answer < /dev/tty
+
+  if [ "$answer" != "${answer#[Yy]}" ]; then
+    Print_Style "Accepting the EULA..." "$fgGREEN"
+    echo eula=true >eula.txt
+    sleep 1
+  else
+    Print_Style "You have chosen..... poorly." "$fgRED"
+    sleep 1
+    Print_Style "Exiting the setup." "$fgYELLOW"
+    exit 1
+  fi
+
 fi
 
 # Update Minecraft server scripts
@@ -361,13 +391,14 @@ Update_Sudoers
 Set_Permissions
 
 # Server configuration
-Print_Style "Enter a name for your server..." "$fgMAGENTA"
+Print_Style "Please enter a name for your server." "$fgMAGENTA"
+Print_Style "This can be changed later in the server.properties file in your minecraft directory." "$fgMAGENTA"
 read -p 'Server Name: ' servername < /dev/tty
 echo "server-name=$servername" >>server.properties
 echo "motd=$servername" >>server.properties
 
 # Finished!
-Print_Style "Setup is complete. Starting Minecraft server..." "$fgGREEN"
+Print_Style "Setup is complete. Starting your Minecraft server..." "$fgGREEN"
 sudo systemctl start minecraft.service
 
 # Wait up to 30 seconds for server to start
