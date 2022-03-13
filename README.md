@@ -10,7 +10,7 @@ PiCubed will assist you in the installation of a Paper Minecraft Java Server. **
 
 PiCubed makes the assumption that you are tinkering with a Raspberry Pi because you are the type of person that, well likes to tinker and know a little more about what's going on under the hood. If you are ready to learn a little more and put in a little more effort then this script if for you. If not, thank you for looking. We'll still be here if you want to learn a little more later. In all reality though running a Minecraft server, even a small one for you and a couple of friends, will require you to learn a few things about the process.
 
-Please refer to the [wiki](https://github.com/R-Pi-Cubed/PiCubed-Minecraft-Installer/wiki) for detailed information and instructions on how to get your server up and running.
+Please refer to [docs.picubed.me](https://docs.picubed.me) for detailed information and instructions on how to get your server up and running.
 
 ## Before you get started
 
@@ -24,7 +24,7 @@ You are going to be told all types of things when you ask someone about setting 
 
 Most of those things are wrong.
 
-It is indeed shocking just how much inaccurate, old and biased information there is about the subject of setting up a Minecraft server on a Pi. That is indeed one of the reasons for this script. Question everything you read. That includes anything you read here. If you see something that seems inaccurate please point it out.
+It is indeed shocking just how much inaccurate, old and biased information there is about the subject of setting up a Minecraft server on a Pi. That is indeed one of the reasons for this repository. Question everything you read. That includes anything you read here. **If you see something that seems inaccurate please point it out**.
 
 A Raspberry Pi can absolutley run a Minecraft server for you and a few friends. It can do just about anything that an expensive hosting service can do. The limitation is scale. You will not be hosting a server for 100 of your classmates all online at once. Even 10 may be a stretch. You can add google style maps, discord webhooks to message you activity on your server or plugins to add mobhead drops. But as your server complexity grows so must your knowledge. Manage your expectations and have realistic goals and you will be happy with your server for years to come.
 
