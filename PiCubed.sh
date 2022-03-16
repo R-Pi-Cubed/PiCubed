@@ -70,7 +70,7 @@ function read_with_prompt {
 Get_ServerMemory() {
   sync
 
-  Print_Style "Getting total system memory..." "$YELLOW"
+  Print_Style "Getting total system memory..." "$fgYELLOW"
   TotalMemory=$(awk '/MemTotal/ { printf "%.0f\n", $2/1024 }' /proc/meminfo)
   AvailableMemory=$(awk '/MemAvailable/ { printf "%.0f\n", $2/1024 }' /proc/meminfo)
   CPUArch=$(uname -m)
@@ -286,6 +286,65 @@ if [[ $ver > 8 ]] || [[ $ver == 1 ]] && [[ $subver > 8 ]]; then
 fi
 }
 
+Configure_Server(){
+
+if [[ -e $DirName/minecraft/server.properties ]]; then
+
+  Print_Style "Please enter a name for your server." "$fgMAGENTA"
+  Print_Style "This can be changed later in the server.properties file in your minecraft directory." "$fgMAGENTA"
+  read -p 'Server Name: ' servername < /dev/tty
+
+  # Set game difficulty to Normal (default is Easy, but we want at least SOME challenge)
+  # Change the value if it exists
+  /bin/sed -i '/difficulty=/c\difficulty=normal' $DirName/minecraft/server.properties
+  # Add it if it doesn't exist
+  if ! grep -q "difficulty=" $DirName/minecraft/server.properties; then
+    echo "difficulty=normal" >> $DirName/minecraft/server.properties
+  fi
+
+  # Set server name
+  # Change the value if it exists
+  /bin/sed -i '/server-name=/c\server-name=$servername' $DirName/minecraft/server.properties
+  # Add it if it doesn't exist
+  if ! grep -q "server-name=" $DirName/minecraft/server.properties; then
+    echo "server-name=$servername" >> $DirName/minecraft/server.properties
+  fi
+
+  # Set MOTD
+  # Change the value if it exists
+  /bin/sed -i '/motd=/c\motd=$servername' $DirName/minecraft/server.properties
+  # Add it if it doesn't exist
+  if ! grep -q "motd=" $DirName/minecraft/server.properties; then
+    echo "motd=$servername" >> $DirName/minecraft/server.properties
+  fi
+
+  #echo "server-name=$servername" >>server.properties
+  #echo "motd=$servername" >>server.properties
+  #echo "difficulty=normal" >>server.properties
+
+fi
+
+}
+
+dependancy_check(){
+
+if [ $(dpkg-query -W -f='${Status}' screen 2>/dev/null | grep -c "ok installed") -eq 0 ]; then
+  Print_Style "Installing the latest version of screen.... Not your screen, the program known as screen." "$fgYELLOW"
+  if [[ $updated == 0 ]]; then
+    apt-get update > /dev/null 2>&1
+    updated=1
+  fi
+  apt-get -y install screen > /dev/null 2>&1
+fi
+# Install dependencies needed to run minecraft in the background
+#Print_Style "Installing the latest version of screen.... Not your screen, the program known as screen." "$fgYELLOW"
+#sleep 2s
+#sudo apt-get update
+#sudo apt-get install screen -y
+#sudo apt-get install net-tools -y
+
+}
+
 #################################################################################################
 
 Print_Style "PiCubed Minecraft server installation script" "$CYAN"
@@ -300,11 +359,7 @@ fi
 sleep 2s
 
 # Install dependencies needed to run minecraft in the background
-Print_Style "Installing the latest version of screen.... Not your screen, the program known as screen." "$fgYELLOW"
-sleep 2s
-sudo apt-get update
-sudo apt-get install screen -y
-#sudo apt-get install net-tools -y
+dependancy_check
 
 # Get the directory path (default ~)
 until [ -d "$DirName" ]
@@ -394,12 +449,8 @@ Update_Sudoers
 # Fix server files/folders permissions
 Set_Permissions
 
-# Server configuration
-Print_Style "Please enter a name for your server." "$fgMAGENTA"
-Print_Style "This can be changed later in the server.properties file in your minecraft directory." "$fgMAGENTA"
-read -p 'Server Name: ' servername < /dev/tty
-echo "server-name=$servername" >>server.properties
-echo "motd=$servername" >>server.properties
+# Update Server configuration
+Configure_Server
 
 # Finished!
 Print_Style "Setup is complete. Starting your Minecraft server..." "$fgGREEN"
@@ -418,6 +469,8 @@ done
 
 if [[ $StartChecks == 30 ]]; then
   Print_Style "Server has failed to start after 30 seconds." "$fgRED"
+  exit
+
 else
   #screen -r minecraft
   Print_Style "Installation complete." "$fgCYAN"
@@ -425,4 +478,6 @@ else
   Print_Style "Your Minecraft server $servername is now starting on $ip" "$fgCYAN"
   Print_Style "For the full documentation: https://github.com/R-Pi-Cubed/PiCubed-Minecraft-Installer" "$fgCYAN"
   #Print_Style "Support The Project: https://patreon.com" "$fgCYAN"
+  exit
+  
 fi
