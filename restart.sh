@@ -3,7 +3,6 @@
 # Minecraft server shutdown and Pi reboot.
 
 # This script is a combination of several sources and are credited here in no order of priority.
-# GitHub Repository: https://gist.github.com/Prof-Bloodstone/6367eb4016eaf9d1646a88772cdbbac5
 # GitHub Repository: https://github.com/TheRemote/RaspberryPiMinecraft
 # GitHub Repository: https://github.com/Cat5TV/pinecraft
 
