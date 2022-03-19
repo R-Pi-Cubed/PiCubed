@@ -16,7 +16,7 @@ Version="0.1"
 # The minimum Java version required for the version on Minecraft you want to install
 MinJavaVer=17
 
-Updated = 0
+Updated=0
 
 UserName=$(whoami)
 
@@ -347,6 +347,9 @@ fi
 }
 
 Cleanup(){
+  
+  #placeholder
+  rm -rf PiCubed
 
 }
 
