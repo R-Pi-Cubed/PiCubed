@@ -45,11 +45,8 @@ echo "Now taking ownership of all server files/folders in dirname/minecraft..."
 sudo chown -Rv userxname dirname/minecraft
 sudo chmod -Rv 755 dirname/minecraft/*.sh
 
-   # NewestLog=$(find dirname/minecraft/logs -type f -exec stat -c "%y %n" {} + | sort -r | head -n1 | cut -d " " -f 4-)
-   # echo "Displaying last 10 lines from log file $NewestLog in /logs folder:"
-   # tail -10 "$NewestLog"
 #fi
 
-sleep 2
+sleep 1s
 
 echo "Complete"

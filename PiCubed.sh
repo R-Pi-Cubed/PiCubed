@@ -14,8 +14,9 @@
 Version="0.1"
 
 # The minimum Java version required for the version on Minecraft you want to install
-minjavaver=17
+MinJavaVer=17
 
+Updated = 0
 
 UserName=$(whoami)
 
@@ -42,7 +43,7 @@ Print_Style() {
 }
 
 # Function to read input from user with a prompt - Only used once in fetching the directory.
-function read_with_prompt {
+read_with_prompt() {
   variable_name="$1"
   prompt="$2"
   default="${3-}"
@@ -138,7 +139,7 @@ Update_Scripts() {
   chmod +x start.sh
   sed -i "s:dirname:$DirName:g" start.sh
   sed -i "s:memselect:$MemSelected:g" start.sh
-  sed -i "s<pathvariable<$PATH<g" start.sh
+  #sed -i "s<pathvariable<$PATH<g" start.sh
 
   sleep 1
 
@@ -146,7 +147,7 @@ Update_Scripts() {
   Print_Style "Updating stop.sh ..." "$fgYELLOW"
   chmod +x stop.sh
   sed -i "s:dirname:$DirName:g" stop.sh
-  sed -i "s<pathvariable<$PATH<g" stop.sh
+  #sed -i "s<pathvariable<$PATH<g" stop.sh
 
   sleep 1
 
@@ -154,7 +155,7 @@ Update_Scripts() {
   Print_Style "Updating restart.sh ..." "$fgYELLOW"
   chmod +x restart.sh
   sed -i "s:dirname:$DirName:g" restart.sh
-  sed -i "s<pathvariable<$PATH<g" restart.sh
+  #sed -i "s<pathvariable<$PATH<g" restart.sh
 
   sleep 1
 
@@ -176,16 +177,16 @@ Update_Scripts() {
   sleep 1
 
   # Update backup.sh
-  Print_Style "Updating backupnas.sh ..." "$fgYELLOW"
-  chmod +x backupnas.sh
-  sed -i "s:dirname:$DirName:g" backup.sh
-  sed -i "s<pathvariable<$PATH<g" backup.sh
+  #Print_Style "Updating backupnas.sh ..." "$fgYELLOW"
+  #chmod +x backupnas.sh
+  #sed -i "s:dirname:$DirName:g" backup.sh
+  #sed -i "s<pathvariable<$PATH<g" backup.sh
 
 }
 
 # Update systemd files to create a Minecraft service.
 Update_Service() {
-  sudo cp minecraft.service /etc/systemd/system/
+  sudo cp "$DirName/PiCubed/minecraft.service /etc/systemd/system/"
   sudo sed -i "s:userxname:$UserName:g" /etc/systemd/system/minecraft.service
   sudo sed -i "s:dirname:$DirName:g" /etc/systemd/system/minecraft.service
   sudo systemctl daemon-reload
@@ -242,9 +243,12 @@ Set_Permissions() {
   sudo ./setperm.sh -a > /dev/null
 }
 
-Check_Java() {
+Java_Check() {
 Print_Style "Checking Java..." "$fgCYAN"
-apt-get update > /dev/null 2>&1
+if [[ $Updated == 0 ]]; then
+  apt-get update > /dev/null 2>&1
+  Updated=1
+fi
 
 # Java installed?
 if type -p java > /dev/null; then
@@ -278,10 +282,7 @@ done
 
 # minimum version of Java supported by Minecraft Server
 if [[ $ver > 8 ]] || [[ $ver == 1 ]] && [[ $subver > 8 ]]; then
-  Print_Style "The installed Java is version ${javaver}. You'll need a newer version of JRE." "$fgRED"
-  echo
-  echo "Failed."
-  echo
+  Print_Style "The installed Java is version ${javaver}. You'll need a newer version of Java to continue." "$fgRED"
   exit 0
 fi
 }
@@ -326,13 +327,13 @@ fi
 
 }
 
-dependancy_check(){
+Dependancy_Check(){
 
 if [ $(dpkg-query -W -f='${Status}' screen 2>/dev/null | grep -c "ok installed") -eq 0 ]; then
   Print_Style "Installing the latest version of screen.... Not your screen, the program known as screen." "$fgYELLOW"
-  if [[ $updated == 0 ]]; then
+  if [[ $Updated == 0 ]]; then
     apt-get update > /dev/null 2>&1
-    updated=1
+    Updated=1
   fi
   apt-get -y install screen > /dev/null 2>&1
 fi
@@ -342,6 +343,58 @@ fi
 #sudo apt-get update
 #sudo apt-get install screen -y
 #sudo apt-get install net-tools -y
+
+}
+
+Cleanup(){
+
+}
+
+Build_System(){
+
+cd ~
+
+ServerFile="$DirName/paper.jar"
+
+if [ -f "$ServerFile" ]; then
+  Print_Style "Located the paper.jar file." "$fgGREEN"
+  sleep 1s
+else 
+  Print_Style "Unable to locate the $ServerFile file." "$fgRED"
+  Print_Style "Please be sure that you have uploaded the latest paper.jar file to the PiCubed directory." "$fgYELLOW"
+  Print_Style "Also be sure that it is named paper.jar." "$fgYELLOW"
+  exit 1
+fi
+
+# Check to see if the Minecraft directory already exists.
+if [ -d "$DirName/minecraft" ]; then
+  Print_Style "An existing Minecraft directory has been found." "$fgRED"
+  Print_Style "Please remove the directory before continuing." "$fgRED"
+  exit 1
+else
+  Print_Style "Creating the Minecraft directory." "$fgGREEN"
+  mkdir minecraft
+  sleep 1s
+fi
+
+# Verify if the directory was created correctly
+if [ -d "$DirName/minecraft" ]; then
+  Print_Style "Moving into the Minecraft directory." "$fgCYAN"
+  cd "$DirName/minecraft"
+  sleep 1s
+else
+  Print_Style "Failed to create the Minecraft directory." "$fgRED"
+  Print_Style "Exiting." "$fgRED"
+  exit 1
+fi
+
+# Create the backup directory
+Print_Style "Creating the backups directory." "$fgCYAN"
+mkdir backups
+sleep 1s
+
+Print_Style "Copying files." "$fgCYAN"
+sudo cp "$DirName/PiCubed/{start.sh,stop.sh,restart.sh,setperm.sh,backup.sh,paper.jar} $DirName/minecraft/"
 
 }
 
@@ -356,10 +409,11 @@ if [[ $(id -u) = 0 ]]; then
    exit 1
 fi
 
-sleep 2s
+sleep 1s
 
 # Install dependencies needed to run minecraft in the background
-dependancy_check
+Dependancy_Check
+Java_Check
 
 # Get the directory path (default ~)
 until [ -d "$DirName" ]
@@ -374,28 +428,8 @@ do
   fi
 done
 
-# Check to see if the Minecraft directory already exists.
-if [ -d "$DirName/minecraft" ]; then
-  Print_Style "Found Minecraft directory." "$fgGREEN"
-  sleep 1s
-else
-  Print_Style "Minecraft directory not found. Exiting." "$fgRED"
-  exit 1
-fi
-
-Print_Style "Moving into the Minecraft directory." "$fgCYAN"
-cd "$DirName/minecraft"
-
-# Create backup directory
-# Check to see if the backup directory already exists.
-if [ -d "$DirName/minecraft/backups" ]; then
-  Print_Style "A backups directory already exists." "$fgGREEN"
-  sleep 2s
-else
-  Print_Style "Creating the backups directory." "$fgYELLOW"
-  mkdir backups
-  sleep 2s
-fi
+# Build the system structure
+Build_System
 
 # Get total system memory
 Get_ServerMemory
@@ -469,15 +503,16 @@ done
 
 if [[ $StartChecks == 30 ]]; then
   Print_Style "Server has failed to start after 30 seconds." "$fgRED"
-  exit
+  exit 1
 
 else
   #screen -r minecraft
+  Cleanup
   Print_Style "Installation complete." "$fgCYAN"
   Print_Style "Please Remember: World generation can take a few minutes. Be patient." "$fgYELLOW"
   Print_Style "Your Minecraft server $servername is now starting on $ip" "$fgCYAN"
   Print_Style "For the full documentation: https://github.com/R-Pi-Cubed/PiCubed-Minecraft-Installer" "$fgCYAN"
   #Print_Style "Support The Project: https://patreon.com" "$fgCYAN"
-  exit
-  
+  exit 0
+
 fi
