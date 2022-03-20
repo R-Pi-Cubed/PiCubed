@@ -6,7 +6,6 @@
 # This script is a combination of several sources and are credited here in no order of priority.
 # GitHub Repository: https://gist.github.com/Prof-Bloodstone/6367eb4016eaf9d1646a88772cdbbac5
 # GitHub Repository: https://github.com/TheRemote/RaspberryPiMinecraft
-# GitHub Repository: https://github.com/Cat5TV/pinecraft
 
 
 # Settings
@@ -84,26 +83,14 @@ fi
 sudo sh -c "echo 1 > /proc/sys/vm/drop_caches"
 sync
 
-# Check if network interfaces are up.
-NetworkChecks=0
-DefaultRoute=$(route -n | awk '$4 == "UG" {print $2}')
-while [ -z "$DefaultRoute" ]; do
-    echo "Network interface not up, will try again in 1 second";
-    sleep 1;
-    DefaultRoute=$(route -n | awk '$4 == "UG" {print $2}')
-    NetworkChecks=$((NetworkChecks+1))
-    if [ $NetworkChecks -gt 20 ]; then
-        echo "Waiting for network interface to come up timed out - starting server without network connection ..."
-        break
-    fi
-done
-
 # Take ownership of the server files and set correct permissions.
-Permissions=$(bash /dirname/minecraft/setperm.sh -a)
+echo "Checking permissions and taking ownership of all server files/folders in dirname/minecraft."
+
+sudo chown -Rv userxname dirname/minecraft
+sudo chmod -Rv 755 dirname/minecraft/*.sh
 
 # Back up the server.
 bash /dirname/minecraft/backup.sh
-
 
 echo "Starting your Minecraft server."
 
@@ -125,12 +112,13 @@ if [[ $StartChecks == 30 ]]; then
   exit 1
 fi
 
-sleep 5
 
 # Double check that the screen is still working.
 if screen -list | grep -q "\.minecraft"; then
   echo "Your Minecraft server is now starting."
+  sleep 1
   echo "The process can take several minutes. Please be patient."
+  sleep 1
   echo "To view the window that your server is running in type...  screen -r minecraft"
   echo "To minimize the window and let the server run in the background, press Ctrl+A then Ctrl+D"
 else

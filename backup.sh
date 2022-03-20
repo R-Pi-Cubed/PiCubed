@@ -1,17 +1,9 @@
 #!/bin/bash
-# This script is a combination of several sources and are credited here in no order of priority.
-# GitHub Repository: https://gist.github.com/Prof-Bloodstone/6367eb4016eaf9d1646a88772cdbbac5
-# GitHub Repository: https://github.com/TheRemote/RaspberryPiMinecraft
-# GitHub Repository: https://github.com/Cat5TV/pinecraft
+# Minecraft Server backup script - primarily called by start.sh
+# but can be ran manually with ./backup.sh
 
-# Set path variable
-#USERPATH="pathvariable"
-#PathLength=${#USERPATH}
-#if [[ "$PathLength" -gt 12 ]]; then
-#    PATH="$USERPATH"
-#else
-#    echo "Unable to set path variable.  You likely need to download an updated version of SetupMinecraft.sh from GitHub!"
-#fi
+# This script is a combination of several sources and are credited here in no order of priority.
+# GitHub Repository: https://github.com/TheRemote/RaspberryPiMinecraft
 
 # Switch to server directory
 cd dirname/minecraft/

@@ -4,17 +4,6 @@
 
 # This script is a combination of several sources and are credited here in no order of priority.
 # GitHub Repository: https://github.com/TheRemote/RaspberryPiMinecraft
-# GitHub Repository: https://github.com/Cat5TV/pinecraft
-
-
-# Set path variable
-#USERPATH="pathvariable"
-#PathLength=${#USERPATH}
-#if [[ "$PathLength" -gt 12 ]]; then
-#  PATH="$USERPATH"
-#else
-#  echo "Unable to set path variable."
-#fi
 
 # Check to make sure we aren't running as root
 if [[ $(id -u) = 0 ]]; then

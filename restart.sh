@@ -4,7 +4,6 @@
 
 # This script is a combination of several sources and are credited here in no order of priority.
 # GitHub Repository: https://github.com/TheRemote/RaspberryPiMinecraft
-# GitHub Repository: https://github.com/Cat5TV/pinecraft
 
 # Minecraft Server restart script - Primarily called by the daily CRON job, Minecraft service or the server if designated in spigot.yml
 # Can also be ran manually with ./restart.sh

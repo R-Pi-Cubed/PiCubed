@@ -10,18 +10,11 @@
 # GitHub Repository: https://github.com/TheRemote/RaspberryPiMinecraft
 # GitHub Repository: https://github.com/Cat5TV/pinecraft
 
-
 # PiCubed server version - not currently used for anything
-Version="0.1"
+Version="0.9"
 
 # The minimum Java version required for the version on Minecraft you want to install
 MinJavaVer=17
-
-# apt update counter to not update more than once
-Updated=0
-
-# Get the current system user
-UserName=$(whoami)
 
 # Terminal colors using ANSI escape
 # Foreground
@@ -38,10 +31,14 @@ txMOVEUP=$(tput cuu 1)
 txCLEARLINE=$(tput el 1)
 txBOLD=$(tput bold)
 txRESET=$(tput sgr0)
-txBLINK=$(tput blink)
 txREVERSE=$(tput smso)
 txUNDERLINE=$(tput smul)
 
+# apt update counter to not update more than once
+Updated=0
+
+# Get the current system user
+UserName=$(whoami)
 
 # Prints a line with color using terminal codes
 Print_Style() {
@@ -113,49 +110,26 @@ Update_Scripts() {
   sudo chmod +x start.sh
   sed -i "s:dirname:$DirName:g" start.sh
   sed -i "s:memselect:$MemSelected:g" start.sh
-  #sed -i "s<pathvariable<$PATH<g" start.sh
-
+  sed -i "s:userxname:$UserName:g" start.sh
   sleep 1
 
   # Update stop.sh
   Print_Style "Updating stop.sh ..." "$fgYELLOW"
   sudo chmod +x stop.sh
   sed -i "s:dirname:$DirName:g" stop.sh
-  #sed -i "s<pathvariable<$PATH<g" stop.sh
-
   sleep 1
 
   # Update restart.sh
   Print_Style "Updating restart.sh ..." "$fgYELLOW"
   sudo chmod +x restart.sh
   sed -i "s:dirname:$DirName:g" restart.sh
-  #sed -i "s<pathvariable<$PATH<g" restart.sh
-
-  sleep 1
-
-  # Update setperm.sh
-  Print_Style "Updating setperm.sh ..." "$fgYELLOW"
-  sudo chmod +x setperm.sh
-  sed -i "s:dirname:$DirName:g" setperm.sh
-  sed -i "s:userxname:$UserName:g" setperm.sh
-  sed -i "s<pathvariable<$PATH<g" setperm.sh
-
   sleep 1
 
   # Update backup.sh
   Print_Style "Updating backup.sh ..." "$fgYELLOW"
   sudo chmod +x backup.sh
   sed -i "s:dirname:$DirName:g" backup.sh
-  sed -i "s<pathvariable<$PATH<g" backup.sh
-
   sleep 1
-
-  # Update backupnas.sh
-  #Print_Style "Updating backupnas.sh ..." "$fgYELLOW"
-  #chmod +x backupnas.sh
-  #sed -i "s:dirname:$DirName:g" backup.sh
-  #sed -i "s<pathvariable<$PATH<g" backup.sh
-
 }
 
 # Update systemd files to create a Minecraft service.
@@ -221,54 +195,57 @@ Set_Permissions() {
   echo
   Print_Style "Setting server file permissions..." "$fgCYAN"
   sleep 1s
-  sudo ./setperm.sh -a > /dev/null
+  #sudo ./setperm.sh -a > /dev/null
+  sudo chown -Rv userxname dirname/minecraft
+  sudo chmod -Rv 755 dirname/minecraft/*.sh
+
 }
 
 Java_Check() {
-Print_Style "Checking Java..." "$fgCYAN"
-if [[ $Updated == 0 ]]; then
-  sudo apt update > /dev/null 2>&1
-  Updated=1
-fi
-
-# Java installed?
-if type -p java > /dev/null; then
-  _java=java
-elif [[ -n "$JAVA_HOME" ]] && [[ -x "$JAVA_HOME/bin/java" ]];  then
-    _java="$JAVA_HOME/bin/java"
-else
-  Print_Style "No version of Java detected. Please install the latest JRE first and try again." "$fgRED"
-  echo
-  Print_Style "Install aborted." "$fgRED"
-  echo
-  exit 0
-fi
-
-# Detect the version of Java installed
-javaver=0
-if [[ "$_java" ]]; then
-  javaver=$("$_java" -version 2>&1 | awk -F '"' '/version/ {print $2}')
-fi
-
-ver=0
-for i in $(echo $javaver | tr "." "\n")
-do
-  if [[ $ver == 0 ]]; then
-    ver=$i
-  else
-    subver=$i
-    break
+  Print_Style "Checking Java..." "$fgCYAN"
+  if [[ $Updated == 0 ]]; then
+    sudo apt update > /dev/null 2>&1
+    Updated=1
   fi
-done
 
-# minimum version of Java supported by Minecraft Server
-if [[ $ver -ge $MinJavaVer ]]; then
-  Print_Style "The installed Java is version ${javaver}. You are good to go." "$fgGREEN"
-  sleep 1s
-else
-  Print_Style "The installed Java is version ${javaver}. You'll need a newer version of Java to continue." "$fgRED"
-  exit 0
-fi
+  # Java installed?
+  if type -p java > /dev/null; then
+    _java=java
+  elif [[ -n "$JAVA_HOME" ]] && [[ -x "$JAVA_HOME/bin/java" ]];  then
+      _java="$JAVA_HOME/bin/java"
+  else
+    Print_Style "No version of Java detected. Please install the latest JRE first and try again." "$fgRED"
+    echo
+    Print_Style "Install aborted." "$fgRED"
+    echo
+    exit 0
+  fi
+
+  # Detect the version of Java installed
+  javaver=0
+  if [[ "$_java" ]]; then
+    javaver=$("$_java" -version 2>&1 | awk -F '"' '/version/ {print $2}')
+  fi
+
+  ver=0
+  for i in $(echo $javaver | tr "." "\n")
+  do
+    if [[ $ver == 0 ]]; then
+      ver=$i
+    else
+      subver=$i
+      break
+    fi
+  done
+
+  # minimum version of Java supported by Minecraft Server
+  if [[ $ver -ge $MinJavaVer ]]; then
+    Print_Style "The installed Java is version ${javaver}. You are good to go." "$fgGREEN"
+    sleep 1s
+  else
+    Print_Style "The installed Java is version ${javaver}. You'll need a newer version of Java to continue." "$fgRED"
+    exit 0
+  fi
 }
 
 Configure_Server(){
@@ -321,6 +298,7 @@ Dependancy_Check(){
     if [[ "$CPUArch" == *"armv7"* || "$CPUArch" == *"armhf"* ]]; then
       Print_Style "You are running a 32 bit operating system." "$fgRED"
       Print_Style "This script does not support 32 bit operating systems. Please upgrade your base os to a 64 bit system." "$fgYellow"
+      Print_Style "In the near future Minecraft Java will no longer support a 32 bit OS." "$fgYellow"
       exit 1
     else
       Print_Style "Unable to verify your operating system." "$fgRED"
@@ -343,10 +321,10 @@ Dependancy_Check(){
   if [ $(dpkg-query -W -f='${Status}' screen 2>/dev/null | grep -c "ok installed") -eq 0 ]; then
     Print_Style "Installing the latest version of screen.... Not your screen, the program known as screen." "$fgYELLOW"
     if [[ $Updated == 0 ]]; then
-      apt update > /dev/null 2>&1
+      sudo apt update > /dev/null 2>&1
       Updated=1
     fi
-    apt -y install screen > /dev/null 2>&1
+    sudo apt -y install screen > /dev/null 2>&1
   else
     Print_Style "The latest version of screen has been detected.... Not your screen, the program known as screen." "$fgGREEN"
     sleep 1s
@@ -357,7 +335,7 @@ Dependancy_Check(){
 Cleanup(){
 
   #placeholder
-  rm -rf PiCubed
+  rm -rf "$DirName/PiCubed"
 
 }
 
@@ -514,7 +492,11 @@ if [[ -e $DirName/minecraft/server.properties ]]; then
 fi
 
 # Finished!
-Print_Style "Setup is complete. Starting your Minecraft server..." "$fgGREEN"
+Print_Style "Setup is complete." "$fgGREEN"
+Print_Style "Your server will now be started for the first time to test the service created for autostart." "$fgCYAN"
+Print_Style "NOTE: World generation can take several minutes. Please be patient." "$fgYELLOW"
+Print_Style "To minimize the window and let the server run in the background, press Ctrl+A then Ctrl+D" "$fgYELLOW$txREVERSE"
+sleep 5
 sudo systemctl start minecraft.service
 
 # Wait up to 30 seconds for server to start
@@ -535,10 +517,9 @@ if [[ $StartChecks == 30 ]]; then
 else
   #screen -r minecraft
   #Cleanup
-  Print_Style "Installation complete." "$fgCYAN"
-  Print_Style "Please Remember: World generation can take a few minutes. Be patient." "$fgYELLOW"
+  Print_Style "Installation complete." "$fgGREEN$txBOLD"
   Print_Style "Your Minecraft server $servername is now starting on $ip" "$fgCYAN"
+  Print_Style "To view the window that your server is running in type...  screen -r minecraft" "$fgYELLOW"
   Print_Style "For the full documentation: https://github.com/R-Pi-Cubed/PiCubed-Minecraft-Installer" "$fgCYAN"
   exit 0
-
 fi
