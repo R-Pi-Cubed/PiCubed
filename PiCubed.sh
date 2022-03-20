@@ -160,7 +160,7 @@ Update_Scripts() {
 
 # Update systemd files to create a Minecraft service.
 Update_Service() {
-  sudo cp "$DirName/PiCubed/minecraft.service /etc/systemd/system/"
+  sudo cp "$DirName"/PiCubed/minecraft.service /etc/systemd/system/
   sudo sed -i "s:userxname:$UserName:g" /etc/systemd/system/minecraft.service
   sudo sed -i "s:dirname:$DirName:g" /etc/systemd/system/minecraft.service
   sudo systemctl daemon-reload
@@ -288,7 +288,7 @@ Configure_Server(){
   # Set MOTD
   Print_Style "Setting server MOTD to $ServerName." "$fgWHITE"
   # Change the value if it exists
-  /bin/sed -i "/motd=/c\motd=${servername} - A Minecraft Server" $DirName/minecraft/server.properties
+  /bin/sed -i "/motd=/c\motd=${ServerName} - A Minecraft Server" $DirName/minecraft/server.properties
 
   # Set network compression
   Print_Style "Setting network compression threshold to 512" "$fgWHITE"

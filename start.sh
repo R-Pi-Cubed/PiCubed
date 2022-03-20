@@ -103,19 +103,10 @@ Permissions=$(bash /dirname/minecraft/setperm.sh -a)
 
 # Back up the server.
 bash /dirname/minecraft/backup.sh
-#if [ -d "world" ]; then 
-#    echo "Backing up server (to cd minecraft/backups folder)"
-#    tar --exclude='./backups' --exclude='./cache' --exclude='./logs' --exclude='./paper.jar' -pzvcf backups/$(date +%Y.%m.%d.%H.%M.%S).tar.gz ./*
-#fi
 
-# Rotate backups -- keep most recent 10
-#Rotate=$(pushd dirname/minecraft/backups; ls -1tr | head -n -10 | xargs -d '\n' rm -f --; popd)
-
-# Switch to server directory
-#cd dirname/minecraft/
 
 echo "Starting your Minecraft server."
-#screen -dmS minecraft java -jar -Xms400M -XmxmemselectM dirname/minecraft/paper.jar
+
 screen -dmS minecraft java -jar "${java_args[@]}"
 
 # Verify that the server has started in a screen.
