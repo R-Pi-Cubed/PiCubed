@@ -196,8 +196,8 @@ Set_Permissions() {
   Print_Style "Setting server file permissions..." "$fgCYAN"
   sleep 1s
   #sudo ./setperm.sh -a > /dev/null
-  sudo chown -Rv userxname dirname/minecraft
-  sudo chmod -Rv 755 dirname/minecraft/*.sh
+  sudo chown -Rv "$UserName $DirName/minecraft"
+  sudo chmod -Rv 755 "$DirName/minecraft/*.sh"
 
 }
 
@@ -383,7 +383,7 @@ Build_System(){
   sleep 1s
 
   Print_Style "Copying files." "$fgCYAN"
-  sudo cp "$DirName"/PiCubed/{start.sh,stop.sh,restart.sh,setperm.sh,backup.sh,paper.jar} "$DirName"/minecraft/
+  sudo cp "$DirName"/PiCubed/{start.sh,stop.sh,restart.sh,backup.sh,paper.jar} "$DirName"/minecraft/
 
   cd ~
 }

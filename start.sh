@@ -90,7 +90,7 @@ sudo chown -Rv userxname dirname/minecraft
 sudo chmod -Rv 755 dirname/minecraft/*.sh
 
 # Back up the server.
-bash /dirname/minecraft/backup.sh
+bash dirname/minecraft/backup.sh
 
 echo "Starting your Minecraft server."
 
@@ -117,7 +117,7 @@ fi
 if screen -list | grep -q "\.minecraft"; then
   echo "Your Minecraft server is now starting."
   sleep 1
-  echo "The process can take several minutes. Please be patient."
+  echo "The start process can take several minutes. Please be patient."
   sleep 1
   echo "To view the window that your server is running in type...  screen -r minecraft"
   echo "To minimize the window and let the server run in the background, press Ctrl+A then Ctrl+D"
