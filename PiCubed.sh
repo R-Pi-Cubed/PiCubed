@@ -42,9 +42,6 @@ txBLINK=$(tput blink)
 txREVERSE=$(tput smso)
 txUNDERLINE=$(tput smul)
 
-# Global Variable for the system Architecture
-CPUArch=$(uname -m)
-
 
 # Prints a line with color using terminal codes
 Print_Style() {
@@ -73,27 +70,24 @@ Get_ServerMemory() {
     #echo -n "Press any key to continue"
     #read endkey < /dev/tty
     exit 1
-  fi
-
-  if [ "$AvailableMemory" -lt 3000 ]; then
+  elif [ "$AvailableMemory" -lt 3000 ]; then
     echo
-    Print_Style "Warning: There is a limited amount of RAM available." "$fgYELLOW"
+    Print_Style "CAUTION: There is a limited amount of RAM available." "$fgYELLOW"
     Print_Style "The Operating system and background processes require some ram to function properly." "$fgYELLOW"
     Print_Style "With $AvailableMemory you may experience performance issues." "$fgYELLOW"
   fi
-  
-  if [ "$AvailableMemory" -gt 4000 ]; then
-  echo
-    Print_Style "INFO: You can use more than 4GB of RAM for the Minecraft server." "$fgCYAN"
-  fi
-  
+    
   echo
   Print_Style "Please enter the amount of memory you want to dedicate to the server." "$fgCYAN"
   Print_Style "You must leave enough left over memory for the system to run background processes." "$fgCYAN"
   Print_Style "If the system is not left with enough ram it will crash." "$fgCYAN"
+  Print_Style "NOTE: For optimal performance this ram will always be reserved for the server while the server is running." "$fgYELLOW"
+
   MemSelected=0
+
   RecommendedMemory=$(($AvailableMemory - 1536))
-  while [[ $MemSelected -lt 1024 || $MemSelected -ge $TotalMemory ]]; do
+
+  while [[ $MemSelected -lt 1024 || $MemSelected -ge $AvailableMemory ]]; do
     Print_Style "Enter amount of memory in megabytes to dedicate to the Minecraft server (recommended: $RecommendedMemory):" "$fgYELLOW"
     #echo -n "Enter amount of memory in megabytes to dedicate to the Minecraft server (recommended: $RecommendedMemory): " 
     read MemSelected < /dev/tty
@@ -106,7 +100,7 @@ Get_ServerMemory() {
     fi
   done
   echo
-  Print_Style "Amount of memory for Minecraft server selected: $MemSelected MB" "$fgGREEN"
+  Print_Style "The Minecraft server will be allocated $MemSelected MB of ram." "$fgGREEN"
   sleep 1s
 }
 
@@ -156,7 +150,7 @@ Update_Scripts() {
 
   sleep 1
 
-  # Update backup.sh
+  # Update backupnas.sh
   #Print_Style "Updating backupnas.sh ..." "$fgYELLOW"
   #chmod +x backupnas.sh
   #sed -i "s:dirname:$DirName:g" backup.sh
@@ -279,45 +273,43 @@ fi
 
 Configure_Server(){
 
-if [[ -e $DirName/minecraft/server.properties ]]; then
-
+  echo
+  Print_Style "The server.properties file will now be configured." "$fgCYAN"
+  sleep 1s
   Print_Style "Please enter a name for your server." "$fgCYAN"
   Print_Style "This can be changed later in the server.properties file in your minecraft directory." "$fgCYAN"
-  read -p 'Server Name: ' servername < /dev/tty
+  read -p 'Server Name: ' ServerName < /dev/tty
 
   # Set game difficulty to Normal (default is Easy)
+  Print_Style "Setting server difficulty to normal." "$fgWHITE"
   # Change the value if it exists
   /bin/sed -i '/difficulty=/c\difficulty=normal' $DirName/minecraft/server.properties
-  # Add it if it doesn't exist
-  if ! grep -q "difficulty=" $DirName/minecraft/server.properties; then
-    echo "difficulty=normal" >> $DirName/minecraft/server.properties
-  fi
-
-  # Set server name
-  # Change the value if it exists
-  /bin/sed -i '/server-name=/c\server-name=$servername' $DirName/minecraft/server.properties
-  # Add it if it doesn't exist
-  if ! grep -q "server-name=" $DirName/minecraft/server.properties; then
-    echo "server-name=$servername" >> $DirName/minecraft/server.properties
-  fi
 
   # Set MOTD
+  Print_Style "Setting server MOTD to $ServerName." "$fgWHITE"
   # Change the value if it exists
-  /bin/sed -i '/motd=/c\motd=$servername' $DirName/minecraft/server.properties
-  # Add it if it doesn't exist
-  if ! grep -q "motd=" $DirName/minecraft/server.properties; then
-    echo "motd=$servername" >> $DirName/minecraft/server.properties
-  fi
+  /bin/sed -i "/motd=/c\motd=${servername} - A Minecraft Server" $DirName/minecraft/server.properties
 
-  #echo "server-name=$servername" >>server.properties
-  #echo "motd=$servername" >>server.properties
-  #echo "difficulty=normal" >>server.properties
+  # Set network compression
+  Print_Style "Setting network compression threshold to 512" "$fgWHITE"
+  # Change the value if it exists
+  /bin/sed -i '/network-compression-threshold=256/c\network-compression-threshold=512' $DirName/minecraft/server.properties
 
-fi
+  # Set max number of players
+  Print_Style "Setting the maximum number of simultaneous players to 10" "$fgWHITE"
+  # Change the value if it exists
+  /bin/sed -i '/max-players=20/c\max-players=10' $DirName/minecraft/server.properties
+
+  # Set max number of players
+  Print_Style "Setting allow flight to true - this is for error control - not to allow flying in game." "$fgWHITE"
+  # Change the value if it exists
+  /bin/sed -i '/allow-flight=false/c\allow-flight=true' $DirName/minecraft/server.properties
 
 }
 
 Dependancy_Check(){
+
+  CPUArch=$(uname -m)
 
   Print_Style "Doing a dependancy check." "$fgCYAN"
   sleep 1s
@@ -360,13 +352,6 @@ Dependancy_Check(){
     sleep 1s
   fi
 
-  # Install dependencies needed to run minecraft in the background
-  #Print_Style "Installing the latest version of screen.... Not your screen, the program known as screen." "$fgYELLOW"
-  #sleep 2s
-  #sudo apt-get update
-  #sudo apt-get install screen -y
-  #sudo apt-get install net-tools -y
-
 }
 
 Cleanup(){
@@ -378,52 +363,51 @@ Cleanup(){
 
 Build_System(){
 
-cd ~
+  cd ~
 
-ServerFile="$DirName/PiCubed/paper.jar"
+  ServerFile="$DirName/PiCubed/paper.jar"
 
-if [ -f "$ServerFile" ]; then
-  Print_Style "Located the paper.jar file." "$fgGREEN"
+  if [ -f "$ServerFile" ]; then
+    Print_Style "Located the paper.jar file." "$fgGREEN"
+    sleep 1s
+  else 
+    Print_Style "Unable to locate the $ServerFile file." "$fgRED"
+    Print_Style "Please be sure that you have uploaded the latest paper.jar file to the PiCubed directory." "$fgYELLOW"
+    Print_Style "Also be sure that it is named paper.jar." "$fgYELLOW"
+    exit 1
+  fi
+
+  # Check to see if the Minecraft directory already exists.
+  if [ -d "$DirName/minecraft" ]; then
+    Print_Style "An existing Minecraft directory has been found." "$fgRED"
+    Print_Style "Please remove the directory before continuing." "$fgRED"
+    exit 1
+  else
+    Print_Style "Creating the Minecraft directory." "$fgCYAN"
+    mkdir minecraft
+    sleep 1s
+  fi
+
+  # Verify if the directory was created correctly
+  if [ -d "$DirName/minecraft" ]; then
+    Print_Style "Moving into the Minecraft directory." "$fgCYAN"
+    cd "$DirName/minecraft"
+    sleep 1s
+  else
+    Print_Style "Failed to create the Minecraft directory." "$fgRED"
+    Print_Style "Exiting." "$fgRED"
+    exit 1
+  fi
+
+  # Create the backup directory
+  Print_Style "Creating the backups directory." "$fgCYAN"
+  mkdir backups
   sleep 1s
-else 
-  Print_Style "Unable to locate the $ServerFile file." "$fgRED"
-  Print_Style "Please be sure that you have uploaded the latest paper.jar file to the PiCubed directory." "$fgYELLOW"
-  Print_Style "Also be sure that it is named paper.jar." "$fgYELLOW"
-  exit 1
-fi
 
-# Check to see if the Minecraft directory already exists.
-if [ -d "$DirName/minecraft" ]; then
-  Print_Style "An existing Minecraft directory has been found." "$fgRED"
-  Print_Style "Please remove the directory before continuing." "$fgRED"
-  exit 1
-else
-  Print_Style "Creating the Minecraft directory." "$fgCYAN"
-  mkdir minecraft
-  sleep 1s
-fi
+  Print_Style "Copying files." "$fgCYAN"
+  sudo cp "$DirName"/PiCubed/{start.sh,stop.sh,restart.sh,setperm.sh,backup.sh,paper.jar} "$DirName"/minecraft/
 
-# Verify if the directory was created correctly
-if [ -d "$DirName/minecraft" ]; then
-  Print_Style "Moving into the Minecraft directory." "$fgCYAN"
-  cd "$DirName/minecraft"
-  sleep 1s
-else
-  Print_Style "Failed to create the Minecraft directory." "$fgRED"
-  Print_Style "Exiting." "$fgRED"
-  exit 1
-fi
-
-# Create the backup directory
-Print_Style "Creating the backups directory." "$fgCYAN"
-mkdir backups
-sleep 1s
-
-Print_Style "Copying files." "$fgCYAN"
-sudo cp "$DirName"/PiCubed/{start.sh,stop.sh,restart.sh,setperm.sh,backup.sh,paper.jar} "$DirName"/minecraft/
-
-cd ~
-
+  cd ~
 }
 
 Init_Server(){
@@ -437,7 +421,7 @@ Init_Server(){
   sleep 1s
   Print_Style "Errors at this stage are normal and expected." "$fgYELLOW"
   sleep 1s
-  Print_Style "Please wait." "$txBLINK$fgYELLOW"
+  Print_Style "Please wait." "$fgYELLOW$txREVERSE"
   echo
   java -jar -Xms1000M -Xmx1000M paper.jar --nogui
 
@@ -452,17 +436,19 @@ Init_Server(){
   read answer < /dev/tty
   if [ "$answer" != "${answer#[Yy]}" ]; then
     Print_Style "Accepting the EULA..." "$fgGREEN"
-    echo eula=true >eula.txt
+    /bin/sed -i '/eula=false/c\eula=true' $DirName/minecraft/eula.txt
+    #echo eula=true >eula.txt
     sleep 1
   else
     Print_Style "We cannot continue until you accept the EULA." "$fgYELLOW"
     Print_Style "Answering no again will exit the setup." "$fgYELLOW"
-    echo -n "Do you accept the EULA? (y/n)?"
+    Print_Style "Do you accept the EULA? (y/n)?" "$fgYELLOW"
     read answer < /dev/tty
 
     if [ "$answer" != "${answer#[Yy]}" ]; then
       Print_Style "Accepting the EULA..." "$fgGREEN" 
-      echo eula=true >eula.txt
+      /bin/sed -i '/eula=false/c\eula=true' $DirName/minecraft/eula.txt
+      #echo eula=true >eula.txt
       sleep 1
     else
       Print_Style "You have chosen..... poorly." "$fgRED"
@@ -482,7 +468,7 @@ Init_Server(){
 clear
 
 Print_Style "PiCubed Minecraft server installation script" "$txBOLD$fgCYAN"
-Print_Style "The latest version is always available at https://https://github.com/R-Pi-Cubed/PiCubed-Minecraft-Installer" "$fgCYAN"
+Print_Style "The latest version is available at https://https://github.com/R-Pi-Cubed/PiCubed-Minecraft-Installer" "$fgCYAN"
 
 # Check to make sure we aren't running as root
 if [[ $(id -u) = 0 ]]; then
@@ -523,7 +509,9 @@ Configure_Reboot
 Set_Permissions
 
 # Update Server configuration
-Configure_Server
+if [[ -e $DirName/minecraft/server.properties ]]; then
+  Configure_Server
+fi
 
 # Finished!
 Print_Style "Setup is complete. Starting your Minecraft server..." "$fgGREEN"
@@ -546,12 +534,11 @@ if [[ $StartChecks == 30 ]]; then
 
 else
   #screen -r minecraft
-  Cleanup
+  #Cleanup
   Print_Style "Installation complete." "$fgCYAN"
   Print_Style "Please Remember: World generation can take a few minutes. Be patient." "$fgYELLOW"
   Print_Style "Your Minecraft server $servername is now starting on $ip" "$fgCYAN"
   Print_Style "For the full documentation: https://github.com/R-Pi-Cubed/PiCubed-Minecraft-Installer" "$fgCYAN"
-  #Print_Style "Support The Project: https://patreon.com" "$fgCYAN"
   exit 0
 
 fi
