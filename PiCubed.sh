@@ -3,9 +3,9 @@
 # This script is an installation aid to help install a Minecraft server on a Raspberry Pi.
 # For detailed instrustions please visit https://docs.picubed.me
 # Note - This script will NOT fetch any version of minecraft. The user is responsible for transfering a copy of the latest
-# minecraft server *.jar file to the Pi in the proper directory. 
+# minecraft server *.jar file to the Pi in the proper directory. Please visit https://docs.picubed.me
 
-# This script is a combination of several sources and are credited here in no order of priority.
+# Parts of this script have been pulled from other sources and are credited here in no order of priority.
 # GitHub Repository: https://gist.github.com/Prof-Bloodstone/6367eb4016eaf9d1646a88772cdbbac5
 # GitHub Repository: https://github.com/TheRemote/RaspberryPiMinecraft
 # GitHub Repository: https://github.com/Cat5TV/pinecraft
@@ -139,8 +139,8 @@ Update_Service() {
   sudo sed -i "s:dirname:$DirName:g" /etc/systemd/system/minecraft.service
   sudo systemctl daemon-reload
   echo
-  Print_Style "Your Parper Minecraft server can start automatically at boot if enabled." "$fgCYAN"
-  Print_Style "Start Minecraft server at startup automatically (y/n)?" "$fgYELLOW"
+  Print_Style "Your Paper Minecraft server can start automatically at boot if enabled." "$fgCYAN"
+  Print_Style "Start Minecraft server automatically at boot? (y/n)?" "$fgYELLOW"
   read answer < /dev/tty
   if [ "$answer" != "${answer#[Yy]}" ]; then
     sudo systemctl enable minecraft.service
@@ -163,7 +163,7 @@ Configure_Reboot() {
   Print_Style "During a reboot is also a good time to do a server backup." "$fgCYAN"
   Print_Style "Server backups will automatically be cycled and only the most recent 10 backups will be kept." "$fgCYAN"
   Print_Style "You can adjust/remove the selected reboot & backup time later by typing crontab -e" "$fgCYAN"
-  Print_Style "Automatically reboot the Pi and backup the server daily at 4am (y/n)?" "$fgYELLOW"
+  Print_Style "Enable automatic daily reboot and server at 4am (y/n)?" "$fgYELLOW"
   read answer < /dev/tty
   if [ "$answer" != "${answer#[Yy]}" ]; then
     croncmd="$DirName/minecraft/restart.sh"
@@ -277,7 +277,7 @@ Configure_Server(){
   # Change the value if it exists
   /bin/sed -i '/max-players=20/c\max-players=10' $DirName/minecraft/server.properties
 
-  # Set max number of players
+  # Set flight error handling
   Print_Style "Setting allow flight to true - this is for error control - not to allow flying in game." "$fgWHITE"
   # Change the value if it exists
   /bin/sed -i '/allow-flight=false/c\allow-flight=true' $DirName/minecraft/server.properties
@@ -407,7 +407,7 @@ Init_Server(){
   echo
   Print_Style "End-User License Agreement" "$txBOLD$fgCYAN"
   sleep 1s
-  Print_Style "To continue you must accept the Minecraft EULA. found at https://account.mojang.com/documents/minecraft_eula" "$fgYELLOW"
+  Print_Style "To continue you must accept the Minecraft EULA." "$fgYELLOW"
   Print_Style "The EULA can be found at https://account.mojang.com/documents/minecraft_eula" "$fgCYAN"
   sleep 1s
   Print_Style "Do you accept the EULA? (y/n)?" "$fgYELLOW"
