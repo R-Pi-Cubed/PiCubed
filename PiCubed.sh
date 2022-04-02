@@ -484,7 +484,7 @@ Configure_Reboot
 #Update_Sudoers
 
 # Fix server files/folders permissions
-Set_Permissions
+#Set_Permissions
 
 # Update Server configuration
 if [[ -e $DirName/minecraft/server.properties ]]; then

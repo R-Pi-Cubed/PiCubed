@@ -86,8 +86,8 @@ sync
 # Take ownership of the server files and set correct permissions.
 echo "Checking permissions and taking ownership of all server files/folders in dirname/minecraft."
 
-sudo chown -Rv userxname dirname/minecraft
-sudo chmod -Rv 755 dirname/minecraft/*.sh
+sudo chown -Rv userxname dirname/minecraft > /dev/null
+sudo chmod -Rv 755 dirname/minecraft/*.sh > /dev/null
 
 # Back up the server.
 bash dirname/minecraft/backup.sh
