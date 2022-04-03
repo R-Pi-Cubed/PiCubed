@@ -445,7 +445,8 @@ Init_Server(){
 
 clear
 
-Print_Style "PiCubed Minecraft server installation script" "$txBOLD$fgCYAN"
+Print_Style "PiCubed Minecraft server installation script" "$txREVERSE$txBOLD$fgCYAN"
+Print_Style " " "$fgCYAN"
 Print_Style "The latest version is available at https://https://github.com/R-Pi-Cubed/PiCubed-Minecraft-Installer" "$fgCYAN"
 
 # Check to make sure we aren't running as root
