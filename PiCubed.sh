@@ -767,9 +767,9 @@ Configure_Reboot
 #Set_Permissions
 
 # Update Server configuration
-if [[ -e $DirName/minecraft/server.properties ]]; then
-  Configure_Server
-fi
+#if [[ -e $DirName/minecraft/server.properties ]]; then
+#  Configure_Server
+#fi
 
 # Basic server installed
 Print_Style "Setup is complete." "$txBOLD$fgGREEN"
