@@ -394,6 +394,141 @@ Configure_Server(){
 
 }
 
+# Update Server configuration
+Optimize_Server(){
+  #Send a stop command to the server instance
+  #This is only executed by the server after it is finished loading
+  screen -Rd minecraft -X stuff "stop $(printf '\r')"
+  Print_Style "Please be patient." "$fgYELLOW$txREVERSE"
+  Print_Style "We will have to let the server finish loading before it can be stopped safely." "$fgYELLOW$txBOLD"
+  Print_Style "The system will wait up to 5 minuutes before quiting." "$fgYELLOW"
+
+  #Check to see if the server is still running
+  StopChecks=0
+  while [ $StopChecks -lt 300 ]; do
+    if ! screen -list | grep -q "\.minecraft"; then
+      break
+    fi
+    sleep 1;
+    StopChecks=$((StopChecks+1))
+  done
+
+  # Cancel optimization if the server can't be stopped
+  if screen -list | grep -q "\.minecraft"; then
+    Print_Style "The server has still not closed after 5 minutes." "$fgRED"
+    Print_Style "Automatic optimization not possible." "$fgRED"
+    Print_Style "You Pi will now reboot and attempt to restart the server." "$fgYELLOW"
+    sleep 5s
+    sudo reboot   
+  fi
+
+  if [[ -e $DirName/minecraft/bukkit.yml ]]; then
+    Print_Style "bukkit.yml found." "$fgCYAN"
+
+    # spawn-limits: monsters: 63
+    Print_Style "Setting spawn-limits: monsters: 63" "$fgWHITE"
+    # Change the value if it exists
+    /bin/sed -i '/monsters: 70/c\monsters: 63' $DirName/minecraft/bukkit.yml
+    sleep 1s
+  fi
+
+  if [[ -e $DirName/minecraft/spigot.yml ]]; then
+    Print_Style "spigot.yml found." "$fgCYAN"
+
+    # save-user-cache-on-stop-only
+    Print_Style "Setting save-user-cache-on-stop-only: true" "$fgWHITE"
+    # Change the value if it exists
+    /bin/sed -i '/save-user-cache-on-stop-only: false/c\save-user-cache-on-stop-only: true' $DirName/minecraft/spigot.yml
+    sleep 1s
+    
+    # max-tick-time
+    Print_Style "Setting max-tick-time: tile: 1000 - entity: 1000" "$fgWHITE"
+    # Change the value if it exists
+    /bin/sed -i '/tile: 50/c\tile: 1000' $DirName/minecraft/spigot.yml
+    /bin/sed -i '/entity: 50/c\entity: 1000' $DirName/minecraft/spigot.yml
+    sleep 1s
+    
+     # merge radius
+    Print_Style "Setting merge-radius: exp: 6.0 - item: 4.0" "$fgWHITE"
+    # Change the value if it exists
+    /bin/sed -i '/exp: 3.0/c\exp: 6.0' $DirName/minecraft/spigot.yml
+    /bin/sed -i '/item: 2.5/c\item: 3.0' $DirName/minecraft/spigot.yml
+    sleep 1s
+    
+     # restart script
+    Print_Style "Setting the restart script to restart.sh" "$fgWHITE"
+    # Change the value if it exists
+    /bin/sed -i '/restart-script: ./start.sh/c\restart-script: ./restart.sh' $DirName/minecraft/spigot.yml
+    sleep 1s
+ fi
+
+  if [[ -e $DirName/minecraft/paper.yml ]]; then
+    Print_Style "paper.yml found." "$fgCYAN"
+    
+    # prevent-moving-into-unloaded-chunks
+    Print_Style "Setting prevent-moving-into-unloaded-chunks: true" "$fgWHITE"
+    # Change the value if it exists
+    /bin/sed -i '/prevent-moving-into-unloaded-chunks: false/c\prevent-moving-into-unloaded-chunks: true' $DirName/minecraft/paper.yml
+    sleep 1s
+    
+    # use-faster-eigencraft-redstone
+    Print_Style "Setting use-faster-eigencraft-redstone: true" "$fgWHITE"
+    # Change the value if it exists
+    /bin/sed -i '/use-faster-eigencraft-redstone: false/c\use-faster-eigencraft-redstone: true' $DirName/minecraft/paper.yml
+    sleep 1s
+    
+    # fix-climbing-bypassing-cramming-rule
+    Print_Style "Setting fix-climbing-bypassing-cramming-rule: true" "$fgWHITE"
+    # Change the value if it exists
+    /bin/sed -i '/fix-climbing-bypassing-cramming-rule: false/c\fix-climbing-bypassing-cramming-rule: true' $DirName/minecraft/paper.yml
+    sleep 1s
+    
+    # grass-spread-tick-rate
+    Print_Style "Setting grass-spread-tick-rate: 2" "$fgWHITE"
+    # Change the value if it exists
+    /bin/sed -i '/grass-spread-tick-rate: 1/c\grass-spread-tick-rate: 2' $DirName/minecraft/paper.yml
+    sleep 1s
+    
+    # optimize-explosions
+    Print_Style "Setting optimize-explosions: true" "$fgWHITE"
+    # Change the value if it exists
+    /bin/sed -i '/optimize-explosions: false/c\optimize-explosions: true' $DirName/minecraft/paper.yml
+    sleep 1s
+    
+    # lootables: auto-replenish:
+    Print_Style "Setting auto-replenish: true" "$fgWHITE"
+    # Change the value if it exists
+    /bin/sed -i '/auto-replenish: false/c\auto-replenish: true' $DirName/minecraft/paper.yml
+    sleep 1s
+    
+    # book-size: page-max:
+    Print_Style "Setting book-size: page-max: 1280" "$fgWHITE"
+    # Change the value if it exists
+    /bin/sed -i '/page-max: 2560/c\page-max: 1280' $DirName/minecraft/paper.yml
+    sleep 1s
+    
+    # monster-spawn-max-light-level:
+    Print_Style "Setting monster-spawn-max-light-level: 7" "$fgWHITE"
+    # Change the value if it exists
+    /bin/sed -i '/monster-spawn-max-light-level: -1/c\monster-spawn-max-light-level: 7' $DirName/minecraft/paper.yml
+    sleep 1s
+    
+    # monster-spawn-max-light-level:
+    Print_Style "Setting monster-spawn-max-light-level: 7" "$fgWHITE"
+    # Change the value if it exists
+    /bin/sed -i '/monster-spawn-max-light-level: -1/c\monster-spawn-max-light-level: 7' $DirName/minecraft/paper.yml
+    sleep 1s
+    
+  fi
+
+  # Restart the server after optimization
+  Print_Style "Optimization is complete." "$txBOLD$fgGREEN"
+  Print_Style "Your server will now be restarted to implement the changes." "$fgCYAN"
+  Print_Style "NOTE: World generation can take several minutes. Please be patient." "$fgYELLOW"
+  sleep 3
+  Start_Server
+}
+
 Dependancy_Check(){
 
   CPUArch=$(uname -m)
@@ -565,6 +700,26 @@ Init_Server(){
 
 }
 
+Start_Server(){
+  sudo systemctl start minecraft.service
+
+  # Wait up to 30 seconds for server to start
+  StartChecks=0
+  while [ $StartChecks -lt 30 ]; do
+    if screen -list | grep -q "\.minecraft"; then
+      Print_Style "Your Minecraft server $ServerName is now starting on $IP" "$fgCYAN"
+      break
+    fi
+    sleep 1s
+    StartChecks=$((StartChecks + 1))
+  done
+
+  if [[ $StartChecks == 30 ]]; then
+    Print_Style "Server has failed to start after 30 seconds." "$fgRED"
+    exit 1
+  fi
+
+}
 #################################################################################################
 
 clear
@@ -616,33 +771,28 @@ if [[ -e $DirName/minecraft/server.properties ]]; then
   Configure_Server
 fi
 
-# Finished!
-Print_Style "Setup is complete." "$fgGREEN"
+# Basic server installed
+Print_Style "Setup is complete." "$txBOLD$fgGREEN"
 Print_Style "Your server will now be started for the first time to test the service created for autostart." "$fgCYAN"
 Print_Style "NOTE: World generation can take several minutes. Please be patient." "$fgYELLOW"
-Print_Style "To minimize the window and let the server run in the background, press Ctrl+A then Ctrl+D" "$fgYELLOW$txREVERSE"
 sleep 5
-sudo systemctl start minecraft.service
+Start_Server
 
-# Wait up to 30 seconds for server to start
-StartChecks=0
-while [ $StartChecks -lt 30 ]; do
-  if screen -list | grep -q "\.minecraft"; then
-    Print_Style "Your Minecraft server $ServerName is now starting on $IP" "$fgCYAN"
-    break
-  fi
-  sleep 1s
-  StartChecks=$((StartChecks + 1))
-done
-
-if [[ $StartChecks == 30 ]]; then
-  Print_Style "Server has failed to start after 30 seconds." "$fgRED"
-  exit 1
-
-else
-  #Cleanup
-  Print_Style "Installation complete." "$fgGREEN$txBOLD"
-  Print_Style "To view the window that your server is running in type...  screen -r minecraft" "$fgYELLOW"
-  Print_Style "For the full documentation: https://docs.picubed.me" "$fgCYAN"
-  exit 0
+#Offer semi-auto optimization
+Print_Style " " "$fgCYAN"
+Print_Style "This script can optionally update your server configuration files" "$fgCYAN"
+Print_Style "for the most common performance adjustements." "$fgCyan"
+sleep 1s
+Print_Style " " "$fgCYAN"
+Print_Style "Do you want to optimize? (y/n)?" "$fgYELLOW"
+read answer < /dev/tty
+if [ "$answer" != "${answer#[Yy]}" ]; then
+  Optimize_Server
 fi
+
+Print_Style " " "$fgCYAN"
+Print_Style "Server installation complete." "$fgGREEN$txBOLD"
+Print_Style "To view the screen that your server is running in type...  screen -r minecraft" "$fgYELLOW"
+Print_Style "To exit the screen and let the server run in the background, press Ctrl+A then Ctrl+D" "$fgYELLOW"
+Print_Style "For the full documentation: https://docs.picubed.me" "$fgCYAN"
+exit 0
